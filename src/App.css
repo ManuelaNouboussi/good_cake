@@ -1,97 +1,139 @@
-.App {
-  text-align: center;
+/* App.css */
+@import url('https://rsms.me/inter/inter.css');
+
+html {
+  font-family: 'Inter', sans-serif;
 }
 
-.navbar {
-  background-color: #333;
-  padding: 15px;
-  color: white;
+* {
+  box-sizing: border-box;
 }
 
-.diagonal-container {
-  position: relative;
+html,
+body,
+#root {
   width: 100%;
-  height: 100vh;
-  transform: rotate(0deg);
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.red-ball {
-  position: relative;
-  background-color: rgb(211, 134, 134);
-  border-radius: 50%;
-  border: 10px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-  width: 100px;
-  height: 100px;
-  margin: 10px;
+body {
+  background: #f0f0f0;
+}
+
+a {
+  all: unset;
+  cursor: pointer;
+}
+
+.container {
+  display: grid;
+  padding: 3em 5em 3em 5em;
+  grid-template-rows: auto 1fr;
+  gap: 3em;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.nav {
+  display: grid;
+  grid-template-columns: auto 0.25fr 1fr 0.25fr auto auto;
+  gap: 1em;
+}
+
+.label {
+  margin: 0;
+  font-size: 2.5em;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.label::after {
+  content: 'POIMANDRES';
+}
+
+.caption {
+  font-size: 2.5em;
+  display: inline-block;
+  max-width: 500px;
+}
+
+.caption::after {
+  content: 'Open source developer collective for the creative space';
+}
+
+.button {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #141622;
+  color: white;
+  height: 52px;
+  border-radius: 30px;
+  padding: 0em 2em;
+  white-space: pre;
 }
 
-#maisonDeLaPatisserie {
-  top: 30%;
-  left: 3%;
-  width: 600px;
-  height: 600px;
+.button.gray {
+  background: #ccc;
+  color: #141622;
 }
 
-#mesSecretsSucres {
-  top: 100%;
-  left: 80%;
-  width: 450px;
-  height: 450px;
+@media (max-width: 1200px) {
+  .container {
+    padding: 2em 4em 2em 4em;
+    gap: 2em;
+  }
+  .button {
+    height: 48px;
+    border-radius: 30px;
+    padding: 0em 2em;
+  }
+  .label {
+    font-size: 2em;
+  }
+  .caption {
+    font-size: 1.5em;
+  }
 }
 
-#mesSecretsSucresPartages {
-  top: 150%;
-  left: 5%;
-  width: 350px;
-  height: 350px;
-  background-color: rgb(209, 37, 132);
+@media (max-width: 800px) {
+  .caption::after {
+    content: 'OSS dev collective  for the creative space';
+  }
+  .label::after {
+    content: 'PMNDRS';
+  }
+  .container {
+    padding: 2em 3em 2em 3em;
+    gap: 2em;
+  }
+  .button {
+    height: 36px;
+    border-radius: 30px;
+    padding: 0em 1.25em;
+    font-size: 0.7em;
+  }
+  .label {
+    font-size: 1em;
+  }
+  .caption {
+    font-size: 1em;
+  }
 }
 
-#tribunalDesAdjuges {
-  top: 190%;
-  left: 80%;
-  width: 450px;
-  height: 450px;
-}
-
-.red-ball::before {
-  content: "";
-  position: absolute;
-  width: 0%;
-  height: 100%;
-  background-color: rgba(238, 155, 155, 0.3);
-  top: 0%;
-  left: 0%;
-}
-
-#maisonDeLaPatisserie.red-ball::before {
-  width: 410%;
-  left: 0%;
-  border-radius: 250px;
-}
-
-#mesSecretsSucres.red-ball::before {
-  width: 600%;
-  left: 20%;
-  top: -0%;
-  left: -500%;
-  border-radius: 900px;
-}
-
-#mesSecretsSucresPartages.red-ball::before {
-  width: 690%;
-  left: -5%;
-  border-radius: 250px;
-}
-
-#tribunalDesAdjuges.red-ball::before {
-  width: 600%;
-  left: 20%;
-  top: -0%;
-  left: -500%;
-  border-radius: 900px;
+@media (max-width: 600px) {
+  .nav {
+    gap: 0.5em;
+  }
+  .caption::after {
+    content: 'OSS dev collective';
+  }
+  .container {
+    padding: 2em 2em 2em 2em;
+    gap: 2em;
+  }
 }
