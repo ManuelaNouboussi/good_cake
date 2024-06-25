@@ -6,6 +6,7 @@ import { CuboidCollider, BallCollider, Physics, RigidBody } from '@react-three/r
 import { EffectComposer, N8AO } from '@react-three/postprocessing'
 import { easing } from 'maath'
 import './App.css';
+import Header from './header'
 
 const accents = ['#4060ff', '#20ffa0', '#ff4060', '#ffcc00']
 const shuffle = (accent = 0) => [
@@ -22,17 +23,8 @@ const shuffle = (accent = 0) => [
 
 export const App = () => (
   <div className="container">
-    <div className="nav">
-      <h1 className="label" />
-      <div />
-      <span className="caption" />
-      <div />
-      <a href="https://lusion.co/">
-        <div className="button">VISIT LUSION</div>
-      </a>
-      <div className="button gray">///</div>
-    </div>
-    <Scene style={{ borderRadius: 20 }} />
+    <Header />
+    {/* <Scene style={{ borderRadius: 20 }} /> */}
   </div>
 )
 

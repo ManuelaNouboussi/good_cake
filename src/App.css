@@ -1,4 +1,3 @@
-/* App.css */
 @import url('https://rsms.me/inter/inter.css');
 
 html {
@@ -27,7 +26,7 @@ a {
   cursor: pointer;
 }
 
-.container {
+.nav {
   display: grid;
   padding: 3em 5em 3em 5em;
   grid-template-rows: auto 1fr;
