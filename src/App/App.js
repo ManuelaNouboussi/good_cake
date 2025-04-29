@@ -6,7 +6,7 @@ import { CuboidCollider, BallCollider, Physics, RigidBody } from '@react-three/r
 import { EffectComposer, N8AO } from '@react-three/postprocessing'
 import { easing } from 'maath'
 import './App.css';
-import Header from './header'
+import Header from '../components/Header/header'
 
 const accents = ['#4060ff', '#20ffa0', '#ff4060', '#ffcc00']
 const shuffle = (accent = 0) => [
