@@ -1,24 +1,42 @@
 .header {
-    position: absolute;
+    position: fixed;
     top: 0;
     width: 100%;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    padding: 25px 40px;
+}
+
+.header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 40px;
-    color: rgb(5, 5, 5);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.scrolled {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    padding: 15px 40px;
 }
 
 .logo {
-    font-family: Segoe Script;
+    font-family: 'Playfair Display', serif;
     font-size: 2.5em;
     font-weight: bold;
+    color: #333;
+    letter-spacing: 2px;
+    transition: color 0.3s;
+}
+
+.scrolled .logo {
+    color: #333;
 }
 
 .choice {
-    font-family: Segoe Script;
-    font-size: 1.5em;
-    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
 }
 
 nav ul {
@@ -33,11 +51,103 @@ nav ul li {
 }
 
 nav ul li a {
-    color: rgb(8, 8, 8);
+    color: #333;
     text-decoration: none;
-    font-size: 1em;
+    font-size: 1.1em;
+    position: relative;
+    padding-bottom: 5px;
+    transition: color 0.3s;
 }
 
 nav ul li a:hover {
-    text-decoration: underline;
+    color: #d6a97d;
+}
+
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #d6a97d;
+    transition: width 0.3s;
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+}
+
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    cursor: pointer;
+}
+
+.menu-toggle span {
+    height: 3px;
+    width: 100%;
+    background-color: #333;
+    border-radius: 3px;
+    transition: all 0.3s;
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 20px;
+    }
+    
+    .scrolled {
+        padding: 15px 20px;
+    }
+    
+    .logo {
+        font-size: 1.8em;
+    }
+    
+    .menu-toggle {
+        display: flex;
+        z-index: 1001;
+    }
+    
+    nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        height: 100vh;
+        background-color: white;
+        padding: 80px 40px;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        z-index: 1000;
+    }
+    
+    nav.open {
+        right: 0;
+    }
+    
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    nav ul li {
+        margin: 15px 0;
+    }
+    
+    .menu-toggle.open span:nth-child(1) {
+        transform: translateY(9px) rotate(45deg);
+    }
+    
+    .menu-toggle.open span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .menu-toggle.open span:nth-child(3) {
+        transform: translateY(-9px) rotate(-45deg);
+    }
 }
