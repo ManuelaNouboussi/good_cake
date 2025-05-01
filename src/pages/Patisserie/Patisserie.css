@@ -1,0 +1,344 @@
+/* Base de la page */
+.patisserie-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f3ee; /* Fond clair légèrement crème */
+    color: #4a3528; /* Couleur de texte brun foncé */
+}
+
+.patisserie-container {
+    flex: 1;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 100px; /* Pour tenir compte de la hauteur du header */
+}
+
+/* Section Hero */
+.page-title {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #5e422e; /* Brun plus foncé pour les titres */
+    margin-bottom: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    position: relative;
+}
+
+.page-title:after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background-color: #8b6c5c;
+    margin: 15px auto 0;
+    border-radius: 3px;
+}
+
+/* Section Recherche */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 40px 0 30px;
+    padding: 15px 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.filter-search-container {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 15px;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #d8cdc3;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #4a3528;
+    background-color: #f8f3ee;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #8b6c5c;
+    box-shadow: none;
+}
+
+.search-input::placeholder {
+    color: #a99b8d;
+    font-style: italic;
+}
+
+/* Styles pour les sélecteurs */
+.filter-options {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filter-label {
+    color: #6b5a4c;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.filter-select {
+    appearance: none;
+    padding: 10px 15px;
+    border: 1px solid #d8cdc3;
+    border-radius: 4px;
+    background-color: #f8f3ee;
+    color: #4a3528;
+    cursor: pointer;
+    font-size: 0.95rem;
+    position: relative;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b6c5c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #8b6c5c;
+    box-shadow: none;
+}
+
+/* Bouton d'ajout */
+.add-recipe-btn {
+    background-color: #8b6c5c;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.add-recipe-btn:hover {
+    background-color: #6b4c38;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Grille de recettes */
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* Carte de recette */
+.recipe-card {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.recipe-header {
+    position: relative;
+}
+
+.recipe-image {
+    height: 180px;
+    overflow: hidden;
+}
+
+.recipe-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: white;
+    font-size: 0.85rem;
+}
+
+.recipe-body {
+    padding: 20px;
+}
+
+.recipe-title {
+    font-size: 1.3rem;
+    color: #5e422e;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.recipe-description {
+    font-size: 0.95rem;
+    color: #6b5a4c;
+    margin-bottom: 15px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recipe-rating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.stars {
+    display: flex;
+}
+
+.star {
+    color: #d0c0b3;
+    font-size: 1.2rem;
+}
+
+.star.filled {
+    color: #c4966a;
+}
+
+.rating-number {
+    font-weight: bold;
+    color: #5e422e;
+}
+
+.votes-number {
+    font-size: 0.85rem;
+    color: #8b7367;
+}
+
+.recipe-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e9e1d7;
+}
+
+.recipe-date {
+    font-size: 0.9rem;
+    color: #8b7367;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.consulter-btn, .juger-btn {
+    background-color: #8b6c5c;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.consulter-btn:hover, .juger-btn:hover {
+    background-color: #6b4c38;
+}
+
+/* Message quand aucune recette n'est trouvée */
+.no-recipes {
+    text-align: center;
+    background-color: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+}
+
+.no-recipes h3 {
+    font-size: 1.5rem;
+    color: #5e422e;
+    margin-bottom: 15px;
+}
+
+.no-recipes p {
+    color: #6b5a4c;
+    line-height: 1.6;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+    .patisserie-page {
+        padding-top: 80px;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .toolbar {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .filter-search-container {
+        width: 100%;
+    }
+    
+    .search-box {
+        max-width: none;
+        width: 100%;
+    }
+    
+    .filter-options {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .add-recipe-btn {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+    }
+    
+    .recipe-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .recipe-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .recipe-card {
+        max-height: none; 
+    }
+}

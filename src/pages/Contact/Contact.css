@@ -1,0 +1,92 @@
+.contact-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-content {
+    flex: 1;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 100px; /* Pour tenir compte de la hauteur du header */
+}
+
+.hero-section {
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #f9f3e9;
+    margin-bottom: 40px;
+    border-radius: 8px;
+}
+
+.hero-section h1 {
+    font-size: 2.5rem;
+    color: #8b5e3c;
+    margin-bottom: 20px;
+}
+
+.hero-section p {
+    font-size: 1.2rem;
+    color: #6b4c38;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.contact-info-section {
+    margin-bottom: 60px;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.contact-details {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.contact-details h2 {
+    font-size: 1.8rem;
+    color: #8b5e3c;
+    margin-bottom: 25px;
+}
+
+.contact-item {
+    margin-bottom: 25px;
+}
+
+.contact-item h3 {
+    font-size: 1.2rem;
+    color: #6b4c38;
+    margin-bottom: 8px;
+}
+
+.contact-item p,
+.contact-item address {
+    font-style: normal;
+    color: #666;
+    line-height: 1.6;
+}
+
+.contact-map {
+    height: 100%;
+    min-height: 350px;
+}
+
+.map-placeholder {
+    height: 100%;
+    background-color: #f9f3e9;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.map-placeholder .placeholder-image {
+    height: 100%;
+    background-color: #eee;
+}

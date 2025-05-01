@@ -1,4 +1,5 @@
 import React, { useState, useRef, useReducer, useMemo } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, MeshTransmissionMaterial, Environment, Lightformer } from '@react-three/drei';
@@ -13,6 +14,13 @@ import FeaturedSection from '../components/FeaturedSection/FeaturedSection';
 import RecipeSearch from '../components/RecipeSearch/RecipeSearch';
 import RecipeForm from '../components/RecipeForm/RecipeForm';
 import Footer from '../components/Footer/Footer';
+
+// Importer les pages
+import Patisserie from '../pages/Patisserie/Patisserie';
+import Chocolat from '../pages/Chocolat/Chocolat';
+import Glaces from '../pages/Glaces/Glaces';
+import Confiserie from '../pages/Confiserie/Confiserie';
+import Contact from '../pages/Contact/Contact';
 
 // Données des recettes préenregistrées
 import { recipeData } from '../components/data/recipeData';
@@ -29,6 +37,56 @@ const shuffle = (accent = 0) => [
   { color: accents[accent], roughness: 0.75, accent: true },
   { color: accents[accent], roughness: 0.1, accent: true }
 ];
+
+// Composant Home pour la page d'accueil
+const Home = ({ 
+  showScene, 
+  setShowScene, 
+  showRecipeForm, 
+  setShowRecipeForm, 
+  recipes, 
+  selectedCategory, 
+  setSelectedCategory,
+  searchTerm, 
+  setSearchTerm,
+  sortOption,
+  setSortOption, 
+  filteredRecipes, 
+  rateRecipe,
+  addRecipe
+}) => {
+  return (
+    <main className="main-content">
+      <HeroSection onExplore={() => setShowScene(true)} />
+      <CategorySection 
+        selectedCategory={selectedCategory} 
+        onCategoryChange={setSelectedCategory} 
+      />
+      
+      <RecipeSearch 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        sortOption={sortOption}
+        onSortChange={setSortOption}
+        onAddRecipeClick={() => setShowRecipeForm(true)}
+      />
+      
+      <FeaturedSection 
+        recipes={filteredRecipes} 
+        onRateRecipe={rateRecipe}
+      />
+      
+      {showRecipeForm && (
+        <div className="modal-overlay">
+          <RecipeForm 
+            onAddRecipe={addRecipe} 
+            onCancel={() => setShowRecipeForm(false)} 
+          />
+        </div>
+      )}
+    </main>
+  );
+};
 
 const App = () => {
   const [showScene, setShowScene] = useState(false);
@@ -95,50 +153,50 @@ const App = () => {
     });
   
   return (
-    <div className="app-container">
-      <Header />
-      
-      {showScene ? (
-        <div className="scene-container">
-          <Scene style={{ borderRadius: 20 }} />
-          <button className="toggle-scene" onClick={() => setShowScene(false)}>
-            Retour au site
-          </button>
-        </div>
-      ) : (
-        <main className="main-content">
-          <HeroSection onExplore={() => setShowScene(true)} />
-          <CategorySection 
-            selectedCategory={selectedCategory} 
-            onCategoryChange={setSelectedCategory} 
-          />
-          
-          <RecipeSearch 
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            sortOption={sortOption}
-            onSortChange={setSortOption}
-            onAddRecipeClick={() => setShowRecipeForm(true)}
-          />
-          
-          <FeaturedSection 
-            recipes={filteredRecipes} 
-            onRateRecipe={rateRecipe}
-          />
-          
-          {showRecipeForm && (
-            <div className="modal-overlay">
-              <RecipeForm 
-                onAddRecipe={addRecipe} 
-                onCancel={() => setShowRecipeForm(false)} 
-              />
-            </div>
-          )}
-          
-          <Footer />
-        </main>
-      )}
-    </div>
+    <Router>
+      <div className="app-container">
+        {showScene ? (
+          <div className="scene-container">
+            <Scene style={{ borderRadius: 20 }} />
+            <button className="toggle-scene" onClick={() => setShowScene(false)}>
+              Retour au site
+            </button>
+          </div>
+        ) : (
+          <>
+            <Header />
+            
+            <Routes>
+              <Route path="/" element={
+                <Home 
+                  showScene={showScene}
+                  setShowScene={setShowScene}
+                  showRecipeForm={showRecipeForm}
+                  setShowRecipeForm={setShowRecipeForm}
+                  recipes={recipes}
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={setSelectedCategory}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  sortOption={sortOption}
+                  setSortOption={setSortOption}
+                  filteredRecipes={filteredRecipes}
+                  rateRecipe={rateRecipe}
+                  addRecipe={addRecipe}
+                />
+              } />
+              <Route path="/patisserie" element={<Patisserie />} />
+              <Route path="/chocolat" element={<Chocolat />} />
+              <Route path="/glaces" element={<Glaces />} />
+              <Route path="/confiserie" element={<Confiserie />} />
+              <Route path="/contact" element={<Contact />} />
+            </Routes>
+            
+            <Footer />
+          </>
+        )}
+      </div>
+    </Router>
   );
 };
 
