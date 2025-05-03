@@ -7,23 +7,23 @@ import { CuboidCollider, BallCollider, Physics, RigidBody } from '@react-three/r
 import { EffectComposer, N8AO } from '@react-three/postprocessing';
 import { easing } from 'maath';
 import './App.css';
-import Header from '../components/Header/header';
-import HeroSection from '../components/HeroSection/HeroSection';
-import CategorySection from '../components/CategorySection/CategorySection';
-import FeaturedSection from '../components/FeaturedSection/FeaturedSection';
-import RecipeSearch from '../components/RecipeSearch/RecipeSearch';
-import RecipeForm from '../components/RecipeForm/RecipeForm';
-import Footer from '../components/Footer/Footer';
+import Header from '../presentation/components/Header/header.js';
+import HeroSection from '../presentation/components/HeroSection/HeroSection';
+import CategorySection from '../presentation/components/CategorySection/CategorySection';
+import FeaturedSection from '../presentation/components/FeaturedSection/FeaturedSection';
+import RecipeSearch from '../presentation/components/RecipeSearch/RecipeSearch';
+import RecipeForm from '../presentation/components/RecipeForm/RecipeForm';
+import Footer from '../presentation/components/Footer/Footer';
 
 // Importer les pages
-import Patisserie from '../pages/Patisserie/Patisserie';
-import Chocolat from '../pages/Chocolat/Chocolat';
-import Glaces from '../pages/Glaces/Glaces';
-import Confiserie from '../pages/Confiserie/Confiserie';
-import Contact from '../pages/Contact/Contact';
+import Patisserie from '../presentation/pages/Patisserie/Patisserie';
+import Chocolat from '../presentation/pages/Chocolat/Chocolat';
+import Glaces from '../presentation/pages/Glaces/Glaces';
+import Confiserie from '../presentation/pages/Confiserie/Confiserie';
+import Contact from '../presentation/pages/Contact/Contact';
 
 // Données des recettes préenregistrées
-import { recipeData } from '../components/data/recipeData';
+import { recipeData } from '../presentation/components/data/recipeData';
 
 const accents = ['#4060ff', '#20ffa0', '#ff4060', '#ffcc00'];
 const shuffle = (accent = 0) => [
