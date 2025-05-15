@@ -151,3 +151,13 @@ nav ul li a:hover::after {
         transform: translateY(-9px) rotate(-45deg);
     }
 }
+
+.success-message {
+    color: #20ffa0;
+    background: rgba(32, 255, 160, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  

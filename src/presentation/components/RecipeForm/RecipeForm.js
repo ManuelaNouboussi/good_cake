@@ -1,17 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { recipeFacade } from '../../../application/facades/recipeFacade';
 import './RecipeForm.css';
 
 const RecipeForm = ({ onAddRecipe, onCancel }) => {
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        category: 'patisserie',
+        categoryId: '',
         ingredients: [''],
         steps: [''],
-        image: '/assets/images/placeholder.jpg' // Image par défaut
+        imageUrl: '/assets/images/placeholder.jpg',
+        preparationTime: '',
+        cookingTime: '',
+        difficulty: 'moyen',
+        servings: ''
     });
     
     const [errors, setErrors] = useState({});
+    
+    // Charger les catégories depuis Supabase
+    useEffect(() => {
+        async function loadCategories() {
+            try {
+                const cats = await recipeFacade.getAllCategories();
+                setCategories(cats);
+                // Définir la première catégorie par défaut
+                if (cats.length > 0) {
+                    setFormData(prev => ({
+                        ...prev,
+                        categoryId: cats[0].id
+                    }));
+                }
+            } catch (err) {
+                console.error('Erreur chargement catégories:', err);
+                alert('Erreur lors du chargement des catégories');
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadCategories();
+    }, []);
     
     // Gérer les changements dans les champs simples
     const handleChange = (e) => {
@@ -91,7 +121,7 @@ const RecipeForm = ({ onAddRecipe, onCancel }) => {
     };
     
     // Gérer la soumission du formulaire
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         // Validation
@@ -103,6 +133,22 @@ const RecipeForm = ({ onAddRecipe, onCancel }) => {
         
         if (!formData.description.trim()) {
             newErrors.description = 'La description est requise';
+        }
+        
+        if (!formData.categoryId) {
+            newErrors.categoryId = 'La catégorie est requise';
+        }
+        
+        if (!formData.preparationTime) {
+            newErrors.preparationTime = 'Le temps de préparation est requis';
+        }
+        
+        if (!formData.cookingTime) {
+            newErrors.cookingTime = 'Le temps de cuisson est requis';
+        }
+        
+        if (!formData.servings) {
+            newErrors.servings = 'Le nombre de portions est requis';
         }
         
         const emptyIngredients = formData.ingredients.some(ing => !ing.trim());
@@ -120,9 +166,27 @@ const RecipeForm = ({ onAddRecipe, onCancel }) => {
             return;
         }
         
-        // Si la validation est réussie, ajouter la recette
-        onAddRecipe(formData);
+        // Préparer les données pour Supabase
+        const recipeData = {
+            title: formData.title,
+            description: formData.description,
+            categoryId: formData.categoryId,
+            ingredients: formData.ingredients.filter(ing => ing.trim()),
+            steps: formData.steps.filter(step => step.trim()),
+            imageUrl: formData.imageUrl,
+            preparationTime: parseInt(formData.preparationTime),
+            cookingTime: parseInt(formData.cookingTime),
+            difficulty: formData.difficulty,
+            servings: parseInt(formData.servings)
+        };
+        
+        // Appeler la fonction onAddRecipe avec les données formatées
+        onAddRecipe(recipeData);
     };
+    
+    if (loading) {
+        return <div className="loading">Chargement des catégories...</div>;
+    }
     
     return (
         <div className="recipe-form-container">
@@ -158,19 +222,83 @@ const RecipeForm = ({ onAddRecipe, onCancel }) => {
                     {errors.description && <span className="error-message">{errors.description}</span>}
                 </div>
                 
-                <div className="form-group">
-                    <label htmlFor="category">Catégorie *</label>
-                    <select
-                        id="category"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleChange}
-                    >
-                        <option value="patisserie">Pâtisserie</option>
-                        <option value="chocolat">Chocolat</option>
-                        <option value="glaces">Glaces</option>
-                        <option value="confiserie">Confiserie</option>
-                    </select>
+                <div className="form-row">
+                    <div className="form-group">
+                        <label htmlFor="categoryId">Catégorie *</label>
+                        <select
+                            id="categoryId"
+                            name="categoryId"
+                            value={formData.categoryId}
+                            onChange={handleChange}
+                            className={errors.categoryId ? 'error' : ''}
+                        >
+                            <option value="">Sélectionnez une catégorie</option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.categoryId && <span className="error-message">{errors.categoryId}</span>}
+                    </div>
+                    
+                    <div className="form-group">
+                        <label htmlFor="difficulty">Difficulté *</label>
+                        <select
+                            id="difficulty"
+                            name="difficulty"
+                            value={formData.difficulty}
+                            onChange={handleChange}
+                        >
+                            <option value="facile">Facile</option>
+                            <option value="moyen">Moyen</option>
+                            <option value="difficile">Difficile</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div className="form-row">
+                    <div className="form-group">
+                        <label htmlFor="preparationTime">Temps de préparation (min) *</label>
+                        <input
+                            type="number"
+                            id="preparationTime"
+                            name="preparationTime"
+                            value={formData.preparationTime}
+                            onChange={handleChange}
+                            min="1"
+                            className={errors.preparationTime ? 'error' : ''}
+                        />
+                        {errors.preparationTime && <span className="error-message">{errors.preparationTime}</span>}
+                    </div>
+                    
+                    <div className="form-group">
+                        <label htmlFor="cookingTime">Temps de cuisson (min) *</label>
+                        <input
+                            type="number"
+                            id="cookingTime"
+                            name="cookingTime"
+                            value={formData.cookingTime}
+                            onChange={handleChange}
+                            min="0"
+                            className={errors.cookingTime ? 'error' : ''}
+                        />
+                        {errors.cookingTime && <span className="error-message">{errors.cookingTime}</span>}
+                    </div>
+                    
+                    <div className="form-group">
+                        <label htmlFor="servings">Portions *</label>
+                        <input
+                            type="number"
+                            id="servings"
+                            name="servings"
+                            value={formData.servings}
+                            onChange={handleChange}
+                            min="1"
+                            className={errors.servings ? 'error' : ''}
+                        />
+                        {errors.servings && <span className="error-message">{errors.servings}</span>}
+                    </div>
                 </div>
                 
                 <div className="form-group">

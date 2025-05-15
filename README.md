@@ -1,3 +1,58 @@
+# ⚖️ Cake Lawyer – La justice du goût
+
+Bienvenue sur **Cake Lawyer**, une application web où les recettes sucrées passent au tribunal !  
+Que vous soyez passionné de pâtisserie ou simple curieux, venez découvrir, ajouter et *juger* les meilleures créations sucrées.  
+*“Ce gâteau mérite d’être acquitté !”* 🍰⚒️
+
+---
+
+## 🧩 Fonctionnalités principales
+
+- 📖 Recettes sucrées classées en 4 catégories :
+  - 🧁 Pâtisseries
+  - 🍦 Glaces
+  - 🍬 Confiseries
+  - 🍫 Chocolats
+- ➕ Ajout de recettes par formulaire (nom, ingrédients, étapes, image, catégorie)
+- ⚒️ Système de **notation judiciaire** :
+  - 1 à 5 marteaux de justice au lieu des étoiles
+- 🔍 Recherche et filtres :
+  - Par catégorie
+  - Par popularité
+  - Par note moyenne
+
+---
+
+## 🛠️ Stack technique
+
+- Frontend : [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
+- Styling : SCSS
+- Routing : React Router
+- Build Tool : Create React App
+
+---
+
+## 📸 Aperçu (à venir)
+
+> Capture d’écran ou GIF montrant l’interface et la notation judiciaire
+
+---
+
+## 🚀 Lancement rapide
+
+```bash
+git clone https://github.com/TON-UTILISATEUR/cake-lawyer.git
+cd cake-lawyer
+npm install
+npm start
+
+
+L'application sera disponible sur http://localhost:3000
+
+📄 Licence
+MIT © 2025 – Cake Lawyer
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

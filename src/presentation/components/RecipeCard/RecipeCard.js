@@ -9,8 +9,15 @@ const RecipeCard = ({ recipe, onRateRecipe }) => {
     
     // Formater la date
     const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('fr-FR', options);
+        if (!dateString) return "Date inconnue";
+        
+        try {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('fr-FR', options);
+        } catch (error) {
+            console.error("Erreur formatage date:", error);
+            return "Date inconnue";
+        }
     };
     
     // Gestion du vote
@@ -29,16 +36,44 @@ const RecipeCard = ({ recipe, onRateRecipe }) => {
         setHoverRating(0);
     };
     
+    // Obtenir l'URL de l'image
+    const getImageUrl = () => {
+        if (!recipe.image_url) return '/assets/images/placeholder.jpg';
+        
+        // Si l'URL est absolue (commence par http)
+        if (recipe.image_url && recipe.image_url.startsWith('http')) {
+            return recipe.image_url;
+        }
+        
+        // Sinon c'est une URL relative
+        return recipe.image_url;
+    };
+
+    // Obtenir la catégorie
+    const getCategory = () => {
+        return recipe.category_name || recipe.category || "Non catégorisé";
+    };
+
+    // Obtenir la note moyenne
+    const getAverageRating = () => {
+        return recipe.average_gavels || recipe.averageRating || 0;
+    };
+
+    // Obtenir le nombre de votes
+    const getVoteCount = () => {
+        return recipe.total_ratings || recipe.voteCount || 0;
+    };
+    
     return (
         <>
             <div className="recipe-card">
                 <div className="recipe-img-container">
                     <img 
-                        src={recipe.image || '/assets/images/placeholder.jpg'} 
+                        src={getImageUrl()} 
                         alt={recipe.title} 
-                        className="recipe-img" 
+                        className="recipe-img"
                     />
-                    <div className="recipe-category-tag">{recipe.category}</div>
+                    <div className="recipe-category-tag">{getCategory()}</div>
                 </div>
                 <div className="recipe-info">
                     <h3>{recipe.title}</h3>
@@ -47,20 +82,20 @@ const RecipeCard = ({ recipe, onRateRecipe }) => {
                         {Array.from({ length: 5 }).map((_, index) => (
                             <span 
                                 key={index} 
-                                className={`rating-gavel ${index < Math.round(recipe.averageRating) ? 'filled' : ''}`}
+                                className={`rating-gavel ${index < Math.round(getAverageRating()) ? 'filled' : ''}`}
                             >
                                 🔨
                             </span>
                         ))}
                         <span className="rating-count">
-                            ({recipe.voteCount} {recipe.voteCount === 1 ? 'vote' : 'votes'})
+                            ({getVoteCount()} {getVoteCount() === 1 ? 'vote' : 'votes'})
                         </span>
                     </div>
                     
                     <p className="recipe-description">{recipe.description}</p>
                     
                     <div className="recipe-footer">
-                        <span className="recipe-date">Ajoutée le {formatDate(recipe.date)}</span>
+                        <span className="recipe-date">Ajoutée le {formatDate(recipe.created_at || recipe.date)}</span>
                         <div className="recipe-actions">
                             <button 
                                 className="recipe-btn view-btn" 
@@ -146,20 +181,20 @@ const RecipeCard = ({ recipe, onRateRecipe }) => {
                                 {Array.from({ length: 5 }).map((_, index) => (
                                     <span 
                                         key={index} 
-                                        className={`rating-gavel ${index < Math.round(recipe.averageRating) ? 'filled' : ''}`}
+                                        className={`rating-gavel ${index < Math.round(getAverageRating()) ? 'filled' : ''}`}
                                     >
                                         🔨
                                     </span>
                                 ))}
                                 <span className="rating-count">
-                                    ({recipe.voteCount} {recipe.voteCount === 1 ? 'vote' : 'votes'})
+                                    ({getVoteCount()} {getVoteCount() === 1 ? 'vote' : 'votes'})
                                 </span>
                             </div>
                         </div>
                         
-                        {recipe.image && (
+                        {getImageUrl() && (
                             <div className="recipe-modal-img-container">
-                                <img src={recipe.image} alt={recipe.title} className="recipe-modal-img" />
+                                <img src={getImageUrl()} alt={recipe.title} className="recipe-modal-img" />
                             </div>
                         )}
                         
@@ -169,7 +204,7 @@ const RecipeCard = ({ recipe, onRateRecipe }) => {
                             <div className="recipe-modal-section">
                                 <h3>Ingrédients</h3>
                                 <ul className="ingredients-list">
-                                    {recipe.ingredients.map((ingredient, index) => (
+                                    {Array.isArray(recipe.ingredients) && recipe.ingredients.map((ingredient, index) => (
                                         <li key={index}>{ingredient}</li>
                                     ))}
                                 </ul>
@@ -178,15 +213,15 @@ const RecipeCard = ({ recipe, onRateRecipe }) => {
                             <div className="recipe-modal-section">
                                 <h3>Préparation</h3>
                                 <ol className="steps-list">
-                                    {recipe.steps.map((step, index) => (
+                                    {Array.isArray(recipe.steps) && recipe.steps.map((step, index) => (
                                         <li key={index}>{step}</li>
                                     ))}
                                 </ol>
                             </div>
                             
                             <div className="recipe-modal-footer">
-                                <p>Catégorie: <span className="modal-category">{recipe.category}</span></p>
-                                <p>Ajoutée le {formatDate(recipe.date)}</p>
+                                <p>Catégorie: <span className="modal-category">{getCategory()}</span></p>
+                                <p>Ajoutée le {formatDate(recipe.created_at || recipe.date)}</p>
                                 <button 
                                     className="recipe-btn rate-btn" 
                                     onClick={(e) => {
