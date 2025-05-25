@@ -41,7 +41,7 @@ Que vous soyez passionné de pâtisserie ou simple curieux, venez découvrir, aj
 ## 🚀 Lancement rapide
 
 ```bash
-git clone https://github.com/TON-UTILISATEUR/cake-lawyer.git
+git clone https://github.com/ManuelaNouboussi/cake-lawyer.git
 cd cake-lawyer
 npm install
 npm start
