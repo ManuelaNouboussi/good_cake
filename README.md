@@ -1,125 +1,197 @@
-# ⚖️ Cake Lawyer – La justice du goût
+# Cake Lawyer – La justice du goût
 
-Bienvenue sur **Cake Lawyer**, une application web où les recettes sucrées passent au tribunal !  
-Que vous soyez passionné de pâtisserie ou simple curieux, venez découvrir, ajouter et *juger* les meilleures créations sucrées.  
-*“Ce gâteau mérite d’être acquitté !”* 🍰⚒️
+**Cake Lawyer** est une application web innovante qui transforme l'évaluation de recettes sucrées en expérience judiciaire ludique. Découvrez, ajoutez et jugez les meilleures créations pâtissières dans un environnement unique où chaque recette passe au tribunal du goût.
 
----
-
-## 🧩 Fonctionnalités principales
-
-- 📖 Recettes sucrées classées en 4 catégories :
-  - 🧁 Pâtisseries
-  - 🍦 Glaces
-  - 🍬 Confiseries
-  - 🍫 Chocolats
-- ➕ Ajout de recettes par formulaire (nom, ingrédients, étapes, image, catégorie)
-- ⚒️ Système de **notation judiciaire** :
-  - 1 à 5 marteaux de justice au lieu des étoiles
-- 🔍 Recherche et filtres :
-  - Par catégorie
-  - Par popularité
-  - Par note moyenne
+> *"Ce gâteau mérite d'être acquitté !"*
 
 ---
 
-## 🛠️ Stack technique
+## Fonctionnalités principales
 
-- Frontend : [React](https://reactjs.org/) + [TypeScript](https://www.typescriptlang.org/)
-- Styling : SCSS
-- Routing : React Router
-- Build Tool : Create React App
+### Catalogue de recettes
+- **Pâtisseries** : Gâteaux, tartes, viennoiseries
+- **Glaces** : Sorbets, crèmes glacées, desserts glacés
+- **Confiseries** : Bonbons, caramels, guimauves
+- **Chocolats** : Truffes, pralinés, créations chocolatées
+
+### Gestion des recettes
+- Ajout de nouvelles recettes via formulaire intuitif
+- Champs disponibles : nom, ingrédients, étapes de préparation, image, catégorie
+- Interface de modification et suppression
+
+### Système de notation judiciaire
+- Notation de 1 à 5 marteaux de justice (au lieu des étoiles traditionnelles)
+- Calcul de la note moyenne par recette
+- Classement par popularité
+
+### Recherche et filtres
+- Filtrage par catégorie de dessert
+- Tri par popularité ou note moyenne
+- Fonction de recherche par nom ou ingrédients
 
 ---
 
-## 📸 Aperçu (à venir)
+## Technologies utilisées
 
-> Capture d’écran ou GIF montrant l’interface et la notation judiciaire
+| Couche | Technologie | Usage |
+|--------|-------------|-------|
+| **Frontend** | React | Framework UI |
+| **Langage** | JavaScript | Développement principal |
+| **Styling** | SCSS | Stylisation avancée |
+| **Routing** | React Router | Navigation |
+| **Backend** | Supabase | Base de données et authentification |
+| **Storage** | Supabase Storage | Stockage d'images |
+| **Architecture** | Clean Architecture | Structure hexagonale |
+| **Build** | Create React App | Configuration et build |
 
 ---
 
-## 🚀 Lancement rapide
+## Installation et lancement
+
+### Prérequis
+- Node.js (version 14 ou supérieure)
+- npm ou yarn
+
+### Installation
 
 ```bash
+# Cloner le repository
 git clone https://github.com/ManuelaNouboussi/cake-lawyer.git
-cd cake-lawyer
+
+# Naviguer dans le dossier
+cd GOOD_CAKE
+
+# Installer les dépendances
 npm install
+
+# Lancer l'application en mode développement
 npm start
+```
 
+L'application sera accessible à l'adresse : `http://localhost:3000`
 
-L'application sera disponible sur http://localhost:3000
+---
 
-📄 Licence
-MIT © 2025 – Cake Lawyer
+## Scripts disponibles
 
+### Développement
+```bash
+npm start          # Lance l'application en mode développement
+npm test           # Execute les tests en mode interactif
+```
 
-# Getting Started with Create React App
+### Production
+```bash
+npm run build      # Génère la version optimisée pour la production
+npm run eject      # Ejection de la configuration (irréversible)
+```
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+---
 
-## Available Scripts
+## Structure du projet
 
-In the project directory, you can run:
+Le projet suit une **architecture hexagonale** (Clean Architecture) pour une meilleure maintenabilité et testabilité :
 
-### `npm start`
+```
+GOOD_CAKE/
+│
+├── public/                        # Fichiers statiques
+│
+├── src/
+│   ├── config/                    # Configuration centralisée
+│   │   ├── constants.js           # Constantes de l'application
+│   │   └── environment.js         # Gestion des environnements
+│   │
+│   ├── infrastructure/            # Couche infrastructure (adapters)
+│   │   ├── api/                   # Implémentations spécifiques
+│   │   │   ├── supabase/          # Intégration Supabase
+│   │   │   │   ├── client.js
+│   │   │   │   ├── recipeAdapter.js
+│   │   │   │   └── authAdapter.js
+│   │   │   └── rest/              # Future API REST
+│   │   │
+│   │   └── storage/               # Gestion du stockage
+│   │       ├── supabase/          # Stockage Supabase
+│   │       └── cloudinary/        # Future migration Cloudinary
+│   │
+│   ├── domain/                    # Logique métier pure
+│   │   ├── entities/              # Entités métier
+│   │   │   ├── Recipe.js
+│   │   │   ├── User.js
+│   │   │   └── Rating.js
+│   │   ├── repositories/          # Interfaces des repositories
+│   │   │   ├── IRecipeRepository.js
+│   │   │   ├── IUserRepository.js
+│   │   │   └── IStorageRepository.js
+│   │   └── services/              # Services métier
+│   │       ├── RecipeService.js
+│   │       ├── AuthService.js
+│   │       └── RatingService.js
+│   │
+│   ├── application/               # Couche application
+│   │   ├── providers/             # Injection de dépendances
+│   │   │   └── DIProvider.js
+│   │   └── facades/               # Façades simplifiées
+│   │       ├── recipeFacade.js
+│   │       └── authFacade.js
+│   │
+│   ├── presentation/              # Interface utilisateur
+│   │   ├── components/            # Composants React réutilisables
+│   │   ├── pages/                 # Pages de l'application
+│   │   ├── hooks/                 # Hooks personnalisés
+│   │   └── context/               # Contextes React
+│   │
+│   └── App.js                     # Point d'entrée de l'application
+│
+├── .env                           # Variables d'environnement
+├── package.json
+└── README.md
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Architecture
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Cette structure implémente les principes de la **Clean Architecture** :
 
-### `npm test`
+- **Domain** : Logique métier indépendante des frameworks
+- **Application** : Orchestration et cas d'usage
+- **Infrastructure** : Implémentations techniques (base de données, APIs)
+- **Presentation** : Interface utilisateur React
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Contribution
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Les contributions sont les bienvenues ! Pour contribuer :
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Forkez le projet
+2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/nouvelle-fonctionnalite`)
+3. Committez vos changements (`git commit -m 'Ajout d'une nouvelle fonctionnalité'`)
+4. Poussez vers la branche (`git push origin feature/nouvelle-fonctionnalite`)
+5. Ouvrez une Pull Request
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## Roadmap
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- [ ] Système d'authentification utilisateur
+- [ ] Sauvegarde des recettes favorites
+- [ ] Partage de recettes sur les réseaux sociaux
+- [ ] API pour l'import/export de recettes
+- [ ] Version mobile dédiée
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Licence
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Contact
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+**Auteur** : Manuela Nouboussi  
+**Repository** : [github.com/ManuelaNouboussi/cake-lawyer](https://github.com/ManuelaNouboussi/cake-lawyer)
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+*Développé avec passion pour les amateurs de pâtisserie et de justice !*
