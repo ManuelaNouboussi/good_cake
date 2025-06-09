@@ -1,103 +1,53 @@
-import { supabase, handleSupabaseError } from './client';
+import { supabase } from './client';
 
 export class SupabaseRatingAdapter {
-  async createRating(rating) {
-    try {
-      const { data, error } = await supabase
-        .from('ratings')
-        .insert(rating)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      return this._formatRating(data);
-    } catch (error) {
-      handleSupabaseError(error);
+  async addRating(recipeId, userId, gavels, comment = null, verdict = null) {
+    const { data, error } = await supabase
+      .rpc('rate_recipe', {
+        recipe_uuid: recipeId,
+        user_uuid: userId,
+        user_gavels: gavels,
+        user_comment: comment,
+        user_verdict: verdict
+      });
+    
+    if (error) {
+      console.error('Erreur rating:', error);
+      throw new Error(error.message);
     }
+    
+    return data?.[0] ? this.toDomainEntity(data[0]) : null;
   }
-
-  async updateRating(id, rating) {
-    try {
-      const { data, error } = await supabase
-        .from('ratings')
-        .update(rating)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      return this._formatRating(data);
-    } catch (error) {
-      handleSupabaseError(error);
+  
+  async getUserRatingForRecipe(recipeId, userId) {
+    const { data, error } = await supabase
+      .rpc('get_user_rating_for_recipe', {
+        recipe_uuid: recipeId,
+        user_uuid: userId
+      });
+    
+    if (error && error.code !== 'PGRST116') {
+      throw error;
     }
+    
+    return data?.[0] ? this.toDomainEntity(data[0]) : null;
   }
-
-  async deleteRating(id, userId) {
-    try {
-      const { error } = await supabase
-        .from('ratings')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
-      return true;
-    } catch (error) {
-      handleSupabaseError(error);
-    }
+  
+  async updateRating(recipeId, userId, gavels, comment = null, verdict = null) {
+    // La fonction rate_recipe gère déjà l'update
+    return this.addRating(recipeId, userId, gavels, comment, verdict);
   }
-
-  async getRatingsByRecipe(recipeId) {
-    try {
-      const { data, error } = await supabase
-        .from('ratings')
-        .select(`
-          *,
-          profiles!inner(username, avatar_url)
-        `)
-        .eq('recipe_id', recipeId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return data.map(this._formatRating);
-    } catch (error) {
-      handleSupabaseError(error);
-    }
-  }
-
-  async getUserRating(recipeId, userId) {
-    try {
-      const { data, error } = await supabase
-        .from('ratings')
-        .select('*')
-        .eq('recipe_id', recipeId)
-        .eq('user_id', userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-
-      return data ? this._formatRating(data) : null;
-    } catch (error) {
-      handleSupabaseError(error);
-    }
-  }
-
-  _formatRating(rating) {
+  
+  toDomainEntity(supabaseData) {
     return {
-      id: rating.id,
-      recipeId: rating.recipe_id,
-      userId: rating.user_id,
-      gavels: rating.gavels,
-      comment: rating.comment,
-      verdict: rating.verdict,
-      username: rating.profiles?.username,
-      userAvatar: rating.profiles?.avatar_url,
-      createdAt: rating.created_at,
-      updatedAt: rating.updated_at
+      id: supabaseData.rating_id,
+      recipeId: null, // Pas retourné par la fonction
+      userId: null,   // Pas retourné par la fonction
+      rating: supabaseData.gavels, // Conversion gavels -> rating pour compatibilité
+      gavels: supabaseData.gavels,
+      comment: supabaseData.comment,
+      verdict: supabaseData.verdict,
+      createdAt: supabaseData.created_at
     };
   }
 }

@@ -1,186 +1,656 @@
-.recipe-form-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
+/* ⚖️ CAKE LAWYER - FORMULAIRE ÉLÉGANT & MODERNE ⚖️ */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Palette sophistiquée Cake Lawyer */
+  --primary-burgundy: #8B2635;
+  --deep-burgundy: #6B1D2A;
+  --accent-rose: #D4A574;
+  --warm-cream: #FAF7F2;
+  --pure-white: #FFFFFF;
+  --charcoal-black: #1A1A1A;
+  --warm-gray: #6B7280;
+  --light-gray: #F3F4F6;
+  --border-light: #E5E7EB;
+  --success-green: #059669;
+  --error-red: #DC2626;
+  --warning-amber: #D97706;
+  
+  /* Typographie raffinée */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', 'Segoe UI', sans-serif;
+  
+  /* Ombres subtiles */
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.12);
+  --shadow-strong: 0 16px 40px rgba(0, 0, 0, 0.15);
+  
+  /* Transitions fluides */
+  --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* ⚖️ CONTENEUR PRINCIPAL - TAILLE FICHE */
+.recipe-form-container {
+  max-width: min(90vw, 720px);
+  margin: clamp(0.75rem, 2vw, 1.5rem) auto;
+  background: var(--pure-white);
+  border-radius: 16px;
+  box-shadow: var(--shadow-medium);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  position: relative;
+  transform: scale(0.9);
+}
+
+.recipe-form-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-rose), transparent);
+}
+
+/* 🏛️ EN-TÊTE SOPHISTIQUÉ */
 .recipe-form-header {
-    background-color: #d6a97d;
-    color: white;
-    padding: 30px;
-    text-align: center;
+  background: linear-gradient(135deg, var(--charcoal-black) 0%, var(--primary-burgundy) 100%);
+  color: var(--warm-cream);
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 2rem);
+  text-align: center;
+  position: relative;
+}
+
+.recipe-form-header::before {
+  content: '⚖️';
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 1.2rem;
+  opacity: 0.2;
+}
+
+.recipe-form-header::after {
+  content: '🎂';
+  position: absolute;
+  top: 1rem;
+  left: 1.5rem;
+  font-size: 1.2rem;
+  opacity: 0.2;
 }
 
 .recipe-form-header h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    margin-bottom: 10px;
+  font-family: var(--font-serif);
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .recipe-form-header p {
-    font-family: 'Poppins', sans-serif;
-    opacity: 0.9;
+  font-family: var(--font-sans);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  font-weight: 300;
+  opacity: 0.85;
+  font-style: italic;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
 }
 
+/* 📋 FORMULAIRE PRINCIPAL */
 .recipe-form {
-    padding: 30px;
-    max-height: 70vh;
-    overflow-y: auto;
+  padding: clamp(1.5rem, 4vw, 2rem);
+  max-height: min(70vh, 600px);
+  overflow-y: auto;
+  background: var(--warm-cream);
 }
 
+.recipe-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.recipe-form::-webkit-scrollbar-track {
+  background: var(--light-gray);
+  border-radius: 3px;
+}
+
+.recipe-form::-webkit-scrollbar-thumb {
+  background: var(--warm-gray);
+  border-radius: 3px;
+}
+
+.recipe-form::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-burgundy);
+}
+
+/* 📝 SECTIONS DU FORMULAIRE */
+.form-section {
+  background: var(--pure-white);
+  padding: 1.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-subtle);
+  margin-bottom: 1.5rem;
+  position: relative;
+  transition: var(--transition-smooth);
+}
+
+.form-section:hover {
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
+}
+
+.form-section h3 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--charcoal-black);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 🏷️ GROUPES DE CHAMPS */
 .form-group {
-    margin-bottom: 25px;
+  margin-bottom: 1.25rem;
 }
 
 .form-group label {
-    display: block;
-    font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: #333;
+  display: block;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--charcoal-black);
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-    outline: none;
-    transition: all 0.3s;
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  margin-bottom: 1.25rem;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: #d6a97d;
-    box-shadow: 0 0 0 2px rgba(214, 169, 125, 0.2);
+/* 📝 CHAMPS DE SAISIE MODERNES */
+input, select, textarea {
+  width: 100%;
+  padding: clamp(0.75rem, 2vw, 0.875rem) clamp(1rem, 2.5vw, 1.25rem);
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: clamp(0.875rem, 2vw, 0.95rem);
+  background: var(--pure-white);
+  transition: var(--transition-smooth);
+  color: var(--charcoal-black);
+  box-shadow: var(--shadow-subtle);
 }
 
-.form-group input.error,
-.form-group textarea.error {
-    border-color: #ff4444;
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-burgundy);
+  box-shadow: 0 0 0 3px rgba(139, 38, 53, 0.1), var(--shadow-soft);
 }
 
+input:hover:not(:focus), select:hover:not(:focus), textarea:hover:not(:focus) {
+  border-color: var(--warm-gray);
+}
+
+input.error, select.error, textarea.error {
+  border-color: var(--error-red);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* 🔥 SÉLECTEUR DE DIFFICULTÉ */
+select[name="difficulty"] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%238B2635' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 1rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  padding-right: 3rem;
+}
+
+/* ⚠️ MESSAGES D'ERREUR */
 .error-message {
-    color: #ff4444;
-    font-size: 0.8rem;
-    display: block;
-    margin-top: 5px;
+  color: var(--error-red);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(220, 38, 38, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid var(--error-red);
 }
 
+.error-message::before {
+  content: '⚠️';
+  font-size: 1rem;
+}
+
+/* 📋 LISTES D'INGRÉDIENTS */
 .list-item {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  background: var(--pure-white);
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-subtle);
+  transition: var(--transition-smooth);
+}
+
+.list-item:hover {
+  box-shadow: var(--shadow-soft);
+  border-color: var(--accent-rose);
 }
 
 .list-item input,
 .list-item textarea {
-    flex: 1;
+  flex: 1;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  padding: 0.5rem;
+  margin: 0;
 }
 
-.remove-btn {
-    width: 40px;
-    height: 40px;
-    background-color: #f0f0f0;
-    border: none;
-    border-radius: 5px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s;
+.list-item input:focus,
+.list-item textarea:focus {
+  border: 1px solid var(--primary-burgundy);
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px rgba(139, 38, 53, 0.1);
 }
 
-.remove-btn:hover:not(:disabled) {
-    background-color: #ff4444;
-    color: #fff;
+/* 🍯 ÉTAPES NUMÉROTÉES */
+.step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: var(--pure-white);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-subtle);
+  transition: var(--transition-smooth);
 }
 
-.remove-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.step-row:hover {
+  box-shadow: var(--shadow-soft);
+  border-color: var(--accent-rose);
 }
 
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, var(--primary-burgundy), var(--deep-burgundy));
+  color: var(--pure-white);
+  border-radius: 50%;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-soft);
+}
+
+.step-fields {
+  flex: 1;
+}
+
+.step-instruction {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+/* ➕ BOUTONS D'AJOUT */
 .add-btn {
-    background: none;
-    border: none;
-    color: #d6a97d;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    margin-top: 10px;
+  background: linear-gradient(135deg, var(--success-green), #10B981);
+  color: var(--pure-white);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  box-shadow: var(--shadow-subtle);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 .add-btn:hover {
-    color: #c0915f;
-    text-decoration: underline;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
 }
 
+.add-btn::before {
+  content: '➕';
+  font-size: 0.875rem;
+}
+
+/* ❌ BOUTONS DE SUPPRESSION */
+.remove-btn {
+  background: linear-gradient(135deg, var(--error-red), #EF4444);
+  color: var(--pure-white);
+  border: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  box-shadow: var(--shadow-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.remove-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-soft);
+}
+
+.remove-btn:disabled {
+  background: var(--warm-gray);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 🥜 ALLERGÈNES GRID */
+.allergens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.allergen-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--pure-white);
+  border: 1.5px solid var(--border-light);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  box-shadow: var(--shadow-subtle);
+  font-size: 0.875rem;
+}
+
+.allergen-checkbox:hover {
+  border-color: var(--accent-rose);
+  box-shadow: var(--shadow-soft);
+}
+
+.allergen-checkbox input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--primary-burgundy);
+  cursor: pointer;
+}
+
+.allergen-checkbox input[type="checkbox"]:checked + span {
+  color: var(--primary-burgundy);
+  font-weight: 600;
+}
+
+/* 📊 GRILLE NUTRITIONNELLE */
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  background: var(--pure-white);
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-subtle);
+}
+
+.nutrition-grid .form-group {
+  margin-bottom: 0;
+}
+
+.nutrition-grid label {
+  font-size: 0.875rem;
+  color: var(--charcoal-black);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* ⚖️ ACTIONS DU FORMULAIRE */
 .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  padding: 1.75rem 0 0.75rem;
+  border-top: 1px solid var(--border-light);
+  margin-top: 1.75rem;
 }
 
 .cancel-btn, .submit-btn {
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
+  padding: 0.875rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  box-shadow: var(--shadow-subtle);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 130px;
+  justify-content: center;
 }
 
 .cancel-btn {
-    background-color: #f0f0f0;
-    color: #333;
+  background: var(--pure-white);
+  color: var(--charcoal-black);
+  border: 1.5px solid var(--border-light);
 }
 
-.cancel-btn:hover {
-    background-color: #ddd;
+.cancel-btn:hover:not(:disabled) {
+  background: var(--light-gray);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
 }
 
 .submit-btn {
-    background-color: #d6a97d;
-    color: #fff;
+  background: linear-gradient(135deg, var(--primary-burgundy), var(--deep-burgundy));
+  color: var(--pure-white);
 }
 
-.submit-btn:hover {
-    background-color: #c0915f;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+.submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--deep-burgundy), var(--primary-burgundy));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
 }
 
+.cancel-btn:disabled, .submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 🚨 ALERTE D'AUTHENTIFICATION */
+.auth-warning {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--warm-cream);
+}
+
+.auth-warning h2 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--charcoal-black);
+  margin-bottom: 1.25rem;
+}
+
+.auth-warning p {
+  font-family: var(--font-sans);
+  color: var(--warm-gray);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* 🎯 CHARGEMENT ÉLÉGANT */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  font-family: var(--font-sans);
+  color: var(--warm-gray);
+  background: var(--warm-cream);
+}
+
+.loading::before {
+  content: '⚖️';
+  font-size: 3rem;
+  animation: pulse 2s ease-in-out infinite;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* 📱 RESPONSIVE DESIGN OPTIMISÉ */
 @media (max-width: 768px) {
-    .recipe-form-container {
-        max-width: 95%;
-    }
-    
-    .recipe-form-header, .recipe-form {
-        padding: 20px;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .cancel-btn, .submit-btn {
-        width: 100%;
-    }
+  .recipe-form-container {
+    margin: 1rem;
+    border-radius: 16px;
+  }
+  
+  .recipe-form-header {
+    padding: 2.5rem 2rem;
+  }
+  
+  .recipe-form {
+    padding: 2rem;
+    max-height: calc(100vh - 200px);
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  
+  .cancel-btn, .submit-btn {
+    width: 100%;
+  }
+  
+  .allergens-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .nutrition-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .step-row {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem;
+  }
+  
+  .step-number {
+    align-self: flex-start;
+    margin-bottom: 1.25rem;
+  }
+  
+  .list-item {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .remove-btn {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .recipe-form-header h2 {
+    font-size: 1.6rem;
+  }
+  
+  .nutrition-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-section {
+    padding: 1.5rem;
+  }
+  
+  .recipe-form {
+    padding: 1.5rem;
+  }
+}
+
+/* 🎨 ACCENTS SUBTILS */
+.form-section:nth-child(odd) {
+  position: relative;
+}
+
+.form-section:nth-child(odd)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--accent-rose), transparent);
+  border-radius: 1px;
+}
+
+/* Animation douce au chargement */
+.recipe-form-container {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

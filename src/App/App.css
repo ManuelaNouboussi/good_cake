@@ -202,3 +202,59 @@ a {
     padding: 10px;
   }
 }
+
+/* Ajouts à votre App.css */
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+.loading-container p {
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 40px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.error-container h2 {
+  color: #d63031;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.error-container p {
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+  max-width: 500px;
+}
+
+.error-container button {
+  background-color: #d6a97d;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.error-container button:hover {
+  background-color: #c0915f;
+}

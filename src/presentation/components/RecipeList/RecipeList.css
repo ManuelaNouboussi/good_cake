@@ -1,0 +1,107 @@
+/* src/presentation/components/RecipeList/RecipeList.css */
+
+.recipe-list {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.recipe-list-header {
+  margin-bottom: 30px;
+}
+
+.recipe-list-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.recipe-list-loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.recipe-list-error {
+  text-align: center;
+  padding: 40px;
+  background-color: #ffe6e6;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.recipe-list-error h2 {
+  color: #d63031;
+  margin-bottom: 10px;
+}
+
+.recipe-list-error p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.recipe-list-error button {
+  background-color: #d6a97d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+}
+
+.recipe-list-error button:hover {
+  background-color: #c0915f;
+}
+
+.recipe-list-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.recipe-list-empty h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+  padding: 20px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .recipe-list {
+    padding: 15px;
+  }
+  
+  .recipe-list-header h1 {
+    font-size: 2rem;
+  }
+  
+  .recipe-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .recipe-list {
+    padding: 10px;
+  }
+  
+  .recipe-list-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .recipe-grid {
+    gap: 15px;
+  }
+}

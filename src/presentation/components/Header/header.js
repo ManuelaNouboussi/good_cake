@@ -572,7 +572,7 @@ const AuthModal = ({ onClose, onSuccess, onError }) => {
                         ) : (
                             <>
                                 <span className="submit-icon">
-                                    {isLogin ? '⚖️' : '🍰'}
+                                    {isLogin ? '🍰' : '🍰'}
                                 </span>
                                 {isLogin ? 'Se connecter' : 'Créer mon compte'}
                             </>
@@ -593,11 +593,6 @@ const AuthModal = ({ onClose, onSuccess, onError }) => {
                     >
                         {isLogin ? 'Créer un compte' : 'Se connecter'}
                     </button>
-                </div>
-
-                {/* Footer */}
-                <div className="auth-footer">
-                    <p>🔐 Connexion sécurisée</p>
                 </div>
             </div>
         </div>

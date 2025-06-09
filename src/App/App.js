@@ -9,12 +9,14 @@ import { easing } from 'maath';
 import './App.css';
 import { recipeFacade } from '../application/facades/recipeFacade';
 import { authFacade } from '../application/facades/authFacade';
+import { AuthProvider } from '../presentation/context/AuthContext';
 import Header from '../presentation/components/Header/header.js';
 import HeroSection from '../presentation/components/HeroSection/HeroSection';
 import CategorySection from '../presentation/components/CategorySection/CategorySection';
 import FeaturedSection from '../presentation/components/FeaturedSection/FeaturedSection';
 import RecipeSearch from '../presentation/components/RecipeSearch/RecipeSearch';
 import RecipeForm from '../presentation/components/RecipeForm/RecipeForm';
+import RecipeDetailModal from '../presentation/components/RecipeDetailModal/RecipeDetailModal';
 import Footer from '../presentation/components/Footer/Footer';
 
 import Patisserie from '../presentation/pages/Patisserie/Patisserie';
@@ -50,7 +52,9 @@ const Home = ({
  setSortOption, 
  filteredRecipes, 
  rateRecipe,
- addRecipe
+ addRecipe,
+ selectedRecipe,
+ setSelectedRecipe
 }) => {
  return (
    <main className="main-content">
@@ -71,6 +75,7 @@ const Home = ({
      <FeaturedSection 
        recipes={filteredRecipes} 
        onRateRecipe={rateRecipe}
+       onViewDetails={(recipe) => setSelectedRecipe(recipe)}
      />
      
      {showRecipeForm && (
@@ -81,14 +86,24 @@ const Home = ({
          />
        </div>
      )}
+
+     {selectedRecipe && (
+       <RecipeDetailModal
+         recipe={selectedRecipe}
+         isOpen={!!selectedRecipe}
+         onClose={() => setSelectedRecipe(null)}
+         onRateRecipe={rateRecipe}
+       />
+     )}
    </main>
  );
 };
 
-const App = () => {
+const AppContent = () => {
  const [showScene, setShowScene] = useState(false);
  const [showRecipeForm, setShowRecipeForm] = useState(false);
- const [recipes, setRecipes] = useState([]);
+ const [selectedRecipe, setSelectedRecipe] = useState(null);
+ const [recipes, setRecipes] = useState([]); // Initialisation avec un tableau vide
  const [selectedCategory, setSelectedCategory] = useState('all');
  const [searchTerm, setSearchTerm] = useState('');
  const [sortOption, setSortOption] = useState('newest');
@@ -100,15 +115,33 @@ const App = () => {
    async function fetchRecipes() {
      try {
        setLoading(true);
+       setError(null);
+       
+       console.log('🎭 App: Récupération des recettes...');
        const result = await recipeFacade.getAllRecipes({
          category: selectedCategory === 'all' ? null : selectedCategory,
          sortBy: sortOption === 'newest' ? 'created_at' : 
                 sortOption === 'highest' ? 'rating' : 'created_at',
          order: 'desc'
        });
-       setRecipes(result.data);
+       
+       console.log('🎭 App: Résultat facade:', result);
+       
+       // Vérifier que result.data existe et est un tableau
+       if (result && Array.isArray(result.data)) {
+         console.log('🎭 App: Utilisation de result.data');
+         setRecipes(result.data);
+       } else if (Array.isArray(result)) {
+         console.log('🎭 App: Utilisation de result direct');
+         setRecipes(result);
+       } else {
+         console.warn('🎭 App: Format de données inattendu:', result);
+         setRecipes([]);
+       }
      } catch (err) {
+       console.error('🎭 App: Erreur lors du chargement des recettes:', err);
        setError(err.message);
+       setRecipes([]); // S'assurer que recipes reste un tableau
      } finally {
        setLoading(false);
      }
@@ -118,7 +151,7 @@ const App = () => {
  }, [selectedCategory, sortOption]);
 
  useEffect(() => {
-   authFacade.getCurrentUser().then(setUser);
+   authFacade.getCurrentUser().then(setUser).catch(console.error);
    
    const { data: authListener } = authFacade.onAuthStateChange((event, session) => {
      setUser(session?.user ?? null);
@@ -136,6 +169,7 @@ const App = () => {
    }
 
    try {
+     console.log('🎭 App: Création d\'une nouvelle recette');
      const createdRecipe = await recipeFacade.createRecipe({
        title: newRecipe.title,
        description: newRecipe.description,
@@ -151,7 +185,9 @@ const App = () => {
 
      setRecipes(prev => [createdRecipe, ...prev]);
      setShowRecipeForm(false);
+     console.log('🎭 App: Recette créée avec succès');
    } catch (err) {
+     console.error('🎭 App: Erreur création recette:', err);
      alert('Erreur lors de la création de la recette: ' + err.message);
    }
  };
@@ -163,26 +199,81 @@ const App = () => {
    }
 
    try {
+     console.log('🎭 App: Notation de la recette:', recipeId, 'avec', rating, 'marteaux');
      await recipeFacade.rateRecipe(recipeId, user.id, {
        gavels: rating,
        comment: 'Notation via le site',
        verdict: rating >= 4 ? 'Acquitté !' : 'À améliorer'
      });
 
+     // Recharger les recettes après notation
      const result = await recipeFacade.getAllRecipes();
-     setRecipes(result.data);
+     if (result && Array.isArray(result.data)) {
+       setRecipes(result.data);
+     } else if (Array.isArray(result)) {
+       setRecipes(result);
+     }
+     console.log('🎭 App: Notation effectuée avec succès');
    } catch (err) {
+     console.error('🎭 App: Erreur notation:', err);
      alert('Erreur lors de la notation: ' + err.message);
    }
  };
 
- const filteredRecipes = recipes.filter(recipe => 
-   recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-   recipe.description?.toLowerCase().includes(searchTerm.toLowerCase())
- );
+ // S'assurer que recipes est toujours un tableau avant d'appeler filter
+ const filteredRecipes = useMemo(() => {
+   if (!Array.isArray(recipes)) {
+     console.warn('🎭 App: recipes n\'est pas un tableau:', recipes);
+     return [];
+   }
+   
+   return recipes.filter(recipe => {
+     if (!recipe) return false;
+     
+     const matchesSearch = !searchTerm || 
+       recipe.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+       recipe.description?.toLowerCase().includes(searchTerm.toLowerCase());
+     
+     return matchesSearch;
+   });
+ }, [recipes, searchTerm]);
 
- if (loading) return <div>Chargement...</div>;
- if (error) return <div>Erreur: {error}</div>;
+ // Fermer le modal quand on appuie sur Escape
+ useEffect(() => {
+   const handleEscape = (event) => {
+     if (event.key === 'Escape') {
+       if (selectedRecipe) {
+         setSelectedRecipe(null);
+       } else if (showRecipeForm) {
+         setShowRecipeForm(false);
+       }
+     }
+   };
+
+   document.addEventListener('keydown', handleEscape);
+   return () => document.removeEventListener('keydown', handleEscape);
+ }, [selectedRecipe, showRecipeForm]);
+
+ if (loading) {
+   return (
+     <div className="loading-container">
+       <div className="loading-spinner"></div>
+       <p>Chargement des recettes...</p>
+     </div>
+   );
+ }
+ 
+ if (error) {
+   return (
+     <div className="error-container">
+       <h2>Erreur</h2>
+       <p>{error}</p>
+       <button onClick={() => window.location.reload()}>
+         Recharger la page
+       </button>
+     </div>
+   );
+ }
  
  return (
    <Router>
@@ -215,6 +306,8 @@ const App = () => {
                  filteredRecipes={filteredRecipes}
                  rateRecipe={rateRecipe}
                  addRecipe={addRecipe}
+                 selectedRecipe={selectedRecipe}
+                 setSelectedRecipe={setSelectedRecipe}
                />
              } />
              <Route path="/patisserie" element={<Patisserie />} />
@@ -230,6 +323,15 @@ const App = () => {
      </div>
    </Router>
  );
+};
+
+// Composant App principal avec AuthProvider
+const App = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
 };
 
 function Scene(props) {
