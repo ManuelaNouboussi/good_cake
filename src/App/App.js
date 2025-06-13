@@ -24,6 +24,7 @@ import Chocolat from '../presentation/pages/Chocolat/Chocolat';
 import Glaces from '../presentation/pages/Glaces/Glaces';
 import Confiserie from '../presentation/pages/Confiserie/Confiserie';
 import Contact from '../presentation/pages/Contact/Contact';
+import ResetPasswordPage from '../presentation/pages/ResetPasswordPage/ResetPasswordPage.js';
 
 const accents = ['#4060ff', '#20ffa0', '#ff4060', '#ffcc00'];
 const shuffle = (accent = 0) => [
@@ -315,6 +316,7 @@ const AppContent = () => {
              <Route path="/glaces" element={<Glaces />} />
              <Route path="/confiserie" element={<Confiserie />} />
              <Route path="/contact" element={<Contact />} />
+             <Route path="/reset-password" element={<ResetPasswordPage />} />
            </Routes>
            
            <Footer />

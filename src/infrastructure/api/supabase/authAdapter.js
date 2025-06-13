@@ -127,4 +127,91 @@ export class SupabaseAuthAdapter {
       callback(event, session);
     });
   }
+
+  // ✨ NOUVELLES MÉTHODES POUR LA RÉINITIALISATION DU MOT DE PASSE ✨
+  async resetPassword({ email }) {
+    try {
+      console.log('AuthAdapter: Sending reset password email to:', email);
+      
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`, // ✨ Page dédiée
+      });
+      
+      if (error) {
+        console.error('AuthAdapter: Reset password error:', error);
+        throw error;
+      }
+      
+      console.log('AuthAdapter: Reset password email sent successfully');
+      return { success: true, data };
+    } catch (error) {
+      console.error('AuthAdapter: Reset password failed:', error);
+      handleSupabaseError(error);
+    }
+  }
+
+  async updatePassword({ password, confirmPassword }) {
+    try {
+      console.log('AuthAdapter: Updating password');
+      
+      // Vérification côté client
+      if (password !== confirmPassword) {
+        throw new Error('Les mots de passe ne correspondent pas');
+      }
+      
+      if (password.length < 6) {
+        throw new Error('Le mot de passe doit contenir au moins 6 caractères');
+      }
+
+      // ✨ NOUVEAU: Vérifier qu'on a bien une session avant de continuer
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.error('AuthAdapter: No valid session for password update:', userError);
+        throw new Error('Session expirée ou invalide. Veuillez cliquer à nouveau sur le lien de réinitialisation.');
+      }
+
+      console.log('AuthAdapter: Valid session found for user:', user.id);
+      
+      const { data, error } = await supabase.auth.updateUser({
+        password: password
+      });
+      
+      if (error) {
+        console.error('AuthAdapter: Update password error:', error);
+        throw error;
+      }
+      
+      console.log('AuthAdapter: Password updated successfully');
+      return { success: true, user: data.user };
+    } catch (error) {
+      console.error('AuthAdapter: Update password failed:', error);
+      handleSupabaseError(error);
+    }
+  }
+
+  // ✨ NOUVELLE MÉTHODE pour échanger un code contre une session
+  async exchangeCodeForSession(code) {
+    try {
+      console.log('AuthAdapter: Exchanging code for session:', code);
+      
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      
+      if (error) {
+        console.error('AuthAdapter: Code exchange error:', error);
+        throw error;
+      }
+      
+      console.log('AuthAdapter: Code exchange successful');
+      return { success: true, data };
+    } catch (error) {
+      console.error('AuthAdapter: Code exchange failed:', error);
+      handleSupabaseError(error);
+    }
+  }
+
+  // Méthode pour vérifier si les fonctionnalités de reset sont disponibles
+  isResetPasswordAvailable() {
+    return typeof this.resetPassword === 'function' && typeof this.updatePassword === 'function';
+  }
 }

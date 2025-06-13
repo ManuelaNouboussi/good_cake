@@ -90,9 +90,15 @@ const Patisserie = () => {
     if (Array.isArray(ingredients)) {
       return ingredients.map((ingredient, index) => {
         if (typeof ingredient === 'object' && ingredient !== null) {
-          return `${ingredient.quantity || ''} ${ingredient.name || ''}${ingredient.note ? ` (${ingredient.note})` : ''}`;
+          return {
+            key: `ingredient-${index}`,
+            text: `${ingredient.quantity || ''} ${ingredient.name || ''}${ingredient.note ? ` (${ingredient.note})` : ''}`
+          };
         }
-        return String(ingredient);
+        return {
+          key: `ingredient-${index}`,
+          text: String(ingredient)
+        };
       });
     }
     
@@ -101,7 +107,7 @@ const Patisserie = () => {
         const parsed = JSON.parse(ingredients);
         return formatIngredients(parsed);
       } catch (e) {
-        return [ingredients];
+        return [{ key: 'ingredient-0', text: ingredients }];
       }
     }
     
@@ -115,6 +121,7 @@ const Patisserie = () => {
       return steps.map((step, index) => {
         if (typeof step === 'object' && step !== null) {
           return {
+            key: `step-${index}`,
             number: step.step || index + 1,
             text: step.instruction || '',
             duration: step.duration || '',
@@ -122,6 +129,7 @@ const Patisserie = () => {
           };
         }
         return {
+          key: `step-${index}`,
           number: index + 1,
           text: String(step),
           duration: '',
@@ -135,7 +143,7 @@ const Patisserie = () => {
         const parsed = JSON.parse(steps);
         return formatSteps(parsed);
       } catch (e) {
-        return [{ number: 1, text: steps, duration: '', temperature: '' }];
+        return [{ key: 'step-0', number: 1, text: steps, duration: '', temperature: '' }];
       }
     }
     
@@ -199,12 +207,63 @@ const Patisserie = () => {
     setFilterOption(e.target.value);
   };
 
+  // Préparer les données sécurisées pour le modal
+  const getSafeRecipe = (recipe) => {
+    if (!recipe) return null;
+
+    const safeRecipe = {
+      id: recipe.id || 'unknown',
+      title: recipe.title || 'Titre non disponible',
+      description: recipe.description || 'Description non disponible',
+      image_url: recipe.image_url || recipe.imageUrl || 'https://via.placeholder.com/400x300?text=Image+non+disponible',
+      category_name: recipe.category_name || recipe.category || 'Non catégorisé',
+      author_name: recipe.author_name || 'Auteur inconnu',
+      preparation_time: recipe.preparation_time || recipe.prepTime || 0,
+      cooking_time: recipe.cooking_time || recipe.cookTime || 0,
+      difficulty: recipe.difficulty || 'Non spécifié',
+      servings: recipe.servings || 1,
+      average_gavels: recipe.average_gavels || recipe.averageRating || 0,
+      total_ratings: recipe.total_ratings || recipe.totalRatings || 0,
+      formatted_date: recipe.formatted_date || new Date(recipe.created_at || Date.now()).toLocaleDateString('fr-FR'),
+      ingredients: formatIngredients(recipe.ingredients),
+      steps: formatSteps(recipe.steps),
+      equipment: recipe.equipment || [],
+      tips: recipe.tips || '',
+      storage_instructions: recipe.storage_instructions || '',
+      allergens: recipe.allergens || [],
+      nutrition_info: recipe.nutrition_info || null,
+      video_url: recipe.video_url || '',
+      source: recipe.source || ''
+    };
+
+    return safeRecipe;
+  };
+
+  const renderRatingStars = (recipe) => {
+    const stars = [];
+    const rating = Math.round(recipe.average_gavels);
+    
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <button
+          key={i}
+          className={`star ${i <= rating ? 'active' : ''}`}
+          onClick={() => handleRateRecipe(recipe.id, i)}
+          aria-label={`Noter ${i} marteau${i > 1 ? 'x' : ''}`}
+        >
+          🔨
+        </button>
+      );
+    }
+    
+    return stars;
+  };
+
   if (loading) {
     return (
       <div className="patisserie-page">
         <Header />
         <main className="patisserie-container">
-          <h1 className="page-title">Pâtisseries</h1>
           <div className="loading-container">
             <div className="loading-spinner"></div>
             <p>Chargement des recettes de pâtisserie...</p>
@@ -219,7 +278,6 @@ const Patisserie = () => {
       <div className="patisserie-page">
         <Header />
         <main className="patisserie-container">
-          <h1 className="page-title">Pâtisseries</h1>
           <div className="error-container">
             <h3>Erreur de chargement</h3>
             <p>{error}</p>
@@ -232,35 +290,33 @@ const Patisserie = () => {
     );
   }
 
+  const safeSelectedRecipe = getSafeRecipe(selectedRecipe);
+  const totalTime = safeSelectedRecipe ? safeSelectedRecipe.preparation_time + safeSelectedRecipe.cooking_time : 0;
+
   return (
     <>
       <div className="patisserie-page">
         <Header />
         
         <main className="patisserie-container">
-          <h1 className="page-title">
-            Pâtisseries 
-            <span className="recipes-count">({allRecipes.length} recette{allRecipes.length > 1 ? 's' : ''})</span>
-          </h1>
-          
-          <div className="toolbar">
-            <div className="filter-search-container">
-              <div className="search-box">
-                <input 
-                  type="text" 
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  placeholder="Rechercher une recette de pâtisserie..." 
-                  className="search-input"
-                />
-              </div>
-              
-              <div className="filter-options">
-                <span className="filter-label">Trier par:</span>
+          <div className="search-and-filter-bar">
+            <form className="search-form">
+              <input
+                type="text"
+                placeholder="Rechercher une recette de pâtisserie..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="search-input"
+              />
+            </form>
+            
+            <div className="sort-container">
+              <span className="sort-label">Trier par:</span>
+              <div className="sort-dropdown">
                 <select 
                   value={filterOption} 
                   onChange={handleFilterChange}
-                  className="filter-select"
+                  className="sort-select"
                 >
                   <option value="recent">Plus récentes</option>
                   <option value="rating">Meilleures notes</option>
@@ -268,6 +324,11 @@ const Patisserie = () => {
                 </select>
               </div>
             </div>
+          </div>
+          
+          <div className="page-title">
+            Recettes Pâtisserie
+            <span className="recipes-count">({allRecipes.length} recette{allRecipes.length > 1 ? 's' : ''})</span>
           </div>
           
           {sortedRecipes.length === 0 && (
@@ -311,13 +372,15 @@ const Patisserie = () => {
         </main>
       </div>
 
-      {selectedRecipe && (
+      {/* Modal détaillé complet */}
+      {safeSelectedRecipe && (
         <div className="recipe-modal-overlay" onClick={(e) => {
           if (e.target === e.currentTarget) {
             handleCloseModal();
           }
         }}>
           <div className="recipe-modal">
+            {/* Header avec bouton fermer */}
             <div className="recipe-modal__header">
               <button 
                 className="recipe-modal__close" 
@@ -328,97 +391,120 @@ const Patisserie = () => {
               </button>
             </div>
 
+            {/* Contenu principal */}
             <div className="recipe-modal__content">
+              {/* Section image et infos de base */}
               <div className="recipe-modal__hero">
                 <div className="recipe-modal__image">
                   <img 
-                    src={selectedRecipe.image_url || selectedRecipe.imageUrl || 'https://via.placeholder.com/400x300?text=Image+non+disponible'} 
-                    alt={selectedRecipe.title}
+                    src={safeSelectedRecipe.image_url} 
+                    alt={safeSelectedRecipe.title}
                     onError={(e) => {
                       e.target.src = 'https://via.placeholder.com/400x300?text=Image+non+disponible';
                     }}
                   />
                   <div className="recipe-modal__category">
-                    {selectedRecipe.category_name || selectedRecipe.category || 'Non catégorisé'}
+                    {safeSelectedRecipe.category_name}
                   </div>
                 </div>
                 
                 <div className="recipe-modal__intro">
-                  <h1 className="recipe-modal__title">{selectedRecipe.title}</h1>
-                  <p className="recipe-modal__description">{selectedRecipe.description}</p>
+                  <h1 className="recipe-modal__title">{safeSelectedRecipe.title}</h1>
+                  <p className="recipe-modal__description">{safeSelectedRecipe.description}</p>
                   
+                  {/* Métadonnées */}
                   <div className="recipe-modal__meta">
                     <div className="recipe-modal__meta-grid">
                       <div className="recipe-modal__meta-item">
                         <span className="recipe-modal__meta-icon">👨‍🍳</span>
                         <span className="recipe-modal__meta-label">Chef</span>
-                        <span className="recipe-modal__meta-value">{selectedRecipe.author_name || 'Auteur inconnu'}</span>
+                        <span className="recipe-modal__meta-value">{safeSelectedRecipe.author_name}</span>
                       </div>
                       <div className="recipe-modal__meta-item">
                         <span className="recipe-modal__meta-icon">⏱️</span>
                         <span className="recipe-modal__meta-label">Temps total</span>
-                        <span className="recipe-modal__meta-value">
-                          {((selectedRecipe.preparation_time || selectedRecipe.prepTime || 0) + (selectedRecipe.cooking_time || selectedRecipe.cookTime || 0)) > 0 
-                            ? `${(selectedRecipe.preparation_time || selectedRecipe.prepTime || 0) + (selectedRecipe.cooking_time || selectedRecipe.cookTime || 0)} min` 
-                            : 'Non spécifié'}
-                        </span>
+                        <span className="recipe-modal__meta-value">{totalTime > 0 ? `${totalTime} min` : 'Non spécifié'}</span>
                       </div>
                       <div className="recipe-modal__meta-item">
                         <span className="recipe-modal__meta-icon">📊</span>
                         <span className="recipe-modal__meta-label">Difficulté</span>
-                        <span className="recipe-modal__meta-value">{selectedRecipe.difficulty || 'Non spécifié'}</span>
+                        <span className="recipe-modal__meta-value">{safeSelectedRecipe.difficulty}</span>
                       </div>
                       <div className="recipe-modal__meta-item">
                         <span className="recipe-modal__meta-icon">🍽️</span>
                         <span className="recipe-modal__meta-label">Portions</span>
-                        <span className="recipe-modal__meta-value">{selectedRecipe.servings || 1}</span>
+                        <span className="recipe-modal__meta-value">{safeSelectedRecipe.servings}</span>
                       </div>
                     </div>
+                    
+                    {/* Temps détaillés */}
+                    {(safeSelectedRecipe.preparation_time > 0 || safeSelectedRecipe.cooking_time > 0) && (
+                      <div className="recipe-modal__time-details">
+                        {safeSelectedRecipe.preparation_time > 0 && (
+                          <span>⚡ Préparation: {safeSelectedRecipe.preparation_time} min</span>
+                        )}
+                        {safeSelectedRecipe.cooking_time > 0 && (
+                          <span>🔥 Cuisson: {safeSelectedRecipe.cooking_time} min</span>
+                        )}
+                      </div>
+                    )}
 
+                    {/* Rating */}
                     <div className="recipe-modal__rating">
                       <div className="recipe-modal__stars">
-                        {[1, 2, 3, 4, 5].map(i => (
-                          <button
-                            key={i}
-                            className={`star ${i <= Math.round(selectedRecipe.average_gavels || selectedRecipe.averageRating || 0) ? 'active' : ''}`}
-                            onClick={() => handleRateRecipe(selectedRecipe.id, i)}
-                            aria-label={`Noter ${i} marteau${i > 1 ? 'x' : ''}`}
-                          >
-                            🔨
-                          </button>
-                        ))}
+                        {renderRatingStars(safeSelectedRecipe)}
                       </div>
                       <span className="recipe-modal__rating-text">
-                        {(selectedRecipe.average_gavels || selectedRecipe.averageRating || 0).toFixed(1)} marteaux ({selectedRecipe.total_ratings || selectedRecipe.totalRatings || 0} avis)
+                        {safeSelectedRecipe.average_gavels.toFixed(1)} marteaux ({safeSelectedRecipe.total_ratings} avis)
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
 
+              {/* Section principale : ingrédients et étapes */}
               <div className="recipe-modal__main">
+                {/* Ingrédients */}
                 <div className="recipe-modal__section">
                   <h2 className="recipe-modal__section-title">
                     <span className="recipe-modal__section-icon">🛒</span>
                     Ingrédients
                   </h2>
                   <ul className="recipe-modal__ingredients">
-                    {formatIngredients(selectedRecipe.ingredients).map((ingredient, index) => (
-                      <li key={index} className="recipe-modal__ingredient">
-                        <span className="recipe-modal__ingredient-text">{ingredient}</span>
+                    {safeSelectedRecipe.ingredients.map((ingredient) => (
+                      <li key={ingredient.key} className="recipe-modal__ingredient">
+                        <span className="recipe-modal__ingredient-text">{ingredient.text}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
+                {/* Matériel nécessaire */}
+                {safeSelectedRecipe.equipment.length > 0 && (
+                  <div className="recipe-modal__section">
+                    <h2 className="recipe-modal__section-title">
+                      <span className="recipe-modal__section-icon">🔧</span>
+                      Matériel nécessaire
+                    </h2>
+                    <ul className="recipe-modal__equipment">
+                      {safeSelectedRecipe.equipment.map((item, index) => (
+                        <li key={index} className="recipe-modal__equipment-item">
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Étapes de préparation */}
                 <div className="recipe-modal__section">
                   <h2 className="recipe-modal__section-title">
                     <span className="recipe-modal__section-icon">📝</span>
                     Étapes de préparation
                   </h2>
                   <ol className="recipe-modal__steps">
-                    {formatSteps(selectedRecipe.steps).map((step, index) => (
-                      <li key={index} className="recipe-modal__step">
+                    {safeSelectedRecipe.steps.map((step) => (
+                      <li key={step.key} className="recipe-modal__step">
                         <div className="recipe-modal__step-number">{step.number}</div>
                         <div className="recipe-modal__step-content">
                           <p className="recipe-modal__step-text">{step.text}</p>
@@ -437,15 +523,79 @@ const Patisserie = () => {
                     ))}
                   </ol>
                 </div>
+
+                {/* Conseils et astuces */}
+                {safeSelectedRecipe.tips && (
+                  <div className="recipe-modal__section">
+                    <h2 className="recipe-modal__section-title">
+                      <span className="recipe-modal__section-icon">💡</span>
+                      Conseils du chef
+                    </h2>
+                    <div className="recipe-modal__tips">
+                      {safeSelectedRecipe.tips}
+                    </div>
+                  </div>
+                )}
+
+                {/* Conservation */}
+                {safeSelectedRecipe.storage_instructions && (
+                  <div className="recipe-modal__section">
+                    <h2 className="recipe-modal__section-title">
+                      <span className="recipe-modal__section-icon">🥶</span>
+                      Conservation
+                    </h2>
+                    <div className="recipe-modal__storage">
+                      {safeSelectedRecipe.storage_instructions}
+                    </div>
+                  </div>
+                )}
+
+                {/* Allergènes */}
+                {safeSelectedRecipe.allergens.length > 0 && (
+                  <div className="recipe-modal__section">
+                    <h2 className="recipe-modal__section-title">
+                      <span className="recipe-modal__section-icon">⚠️</span>
+                      Allergènes
+                    </h2>
+                    <div className="recipe-modal__allergens">
+                      {safeSelectedRecipe.allergens.join(', ')}
+                    </div>
+                  </div>
+                )}
+
+                {/* Informations nutritionnelles */}
+                {safeSelectedRecipe.nutrition_info && (
+                  <div className="recipe-modal__section">
+                    <h2 className="recipe-modal__section-title">
+                      <span className="recipe-modal__section-icon">📊</span>
+                      Informations nutritionnelles
+                    </h2>
+                    <div className="recipe-modal__nutrition">
+                      {typeof safeSelectedRecipe.nutrition_info === 'object' ? (
+                        <div className="recipe-modal__nutrition-grid">
+                          {Object.entries(safeSelectedRecipe.nutrition_info).map(([key, value]) => (
+                            <div key={key} className="recipe-modal__nutrition-item">
+                              <span className="recipe-modal__nutrition-label">
+                                {key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}:
+                              </span>
+                              <span className="recipe-modal__nutrition-value">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p>{safeSelectedRecipe.nutrition_info}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
+              {/* Footer */}
               <div className="recipe-modal__footer">
                 <div className="recipe-modal__footer-info">
-                  <span>
-                    Recette ajoutée le {selectedRecipe.formatted_date || new Date(selectedRecipe.created_at || Date.now()).toLocaleDateString('fr-FR')}
-                  </span>
-                  {selectedRecipe.source && (
-                    <span> • Source: {selectedRecipe.source}</span>
+                  <span>Recette ajoutée le {safeSelectedRecipe.formatted_date}</span>
+                  {safeSelectedRecipe.source && (
+                    <span> • Source: {safeSelectedRecipe.source}</span>
                   )}
                 </div>
               </div>

@@ -72,6 +72,42 @@ export const authFacade = {
     }
   },
 
+  // NOUVELLE MÉTHODE: Validation pour la réinitialisation du mot de passe
+  _validateResetPasswordData({ email }) {
+    const errors = [];
+    
+    if (!email || !email.trim()) {
+      errors.push('L\'email est requis');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.push('Format d\'email invalide');
+    }
+    
+    if (errors.length > 0) {
+      throw new Error(errors.join(', '));
+    }
+  },
+
+  // NOUVELLE MÉTHODE: Validation pour la mise à jour du mot de passe
+  _validateUpdatePasswordData({ password, confirmPassword }) {
+    const errors = [];
+    
+    if (!password) {
+      errors.push('Le nouveau mot de passe est requis');
+    } else if (password.length < 6) {
+      errors.push('Le mot de passe doit contenir au moins 6 caractères');
+    }
+    
+    if (!confirmPassword) {
+      errors.push('La confirmation du mot de passe est requise');
+    } else if (password !== confirmPassword) {
+      errors.push('Les mots de passe ne correspondent pas');
+    }
+    
+    if (errors.length > 0) {
+      throw new Error(errors.join(', '));
+    }
+  },
+
   async signUp({ email, password, username }) {
     try {
       // Validation des données
@@ -135,6 +171,61 @@ export const authFacade = {
         throw new Error('Veuillez confirmer votre email avant de vous connecter');
       } else if (error.message.includes('Too many requests')) {
         throw new Error('Trop de tentatives. Veuillez patienter avant de réessayer');
+      }
+      
+      throw error;
+    }
+  },
+
+  // NOUVELLE MÉTHODE: Réinitialisation du mot de passe
+  async resetPassword({ email }) {
+    try {
+      // Validation des données
+      this._validateResetPasswordData({ email });
+      
+      // Nettoyage des données
+      const cleanEmail = email.trim().toLowerCase();
+
+      const authService = diProvider.get('authService');
+      const result = await authService.resetPassword({ email: cleanEmail });
+      
+      return result;
+    } catch (error) {
+      console.error('ResetPassword error in facade:', error);
+      
+      // Formatage des erreurs pour l'utilisateur
+      if (error.message.includes('User not found')) {
+        throw new Error('Aucun compte trouvé avec cet email');
+      } else if (error.message.includes('Email rate limit exceeded')) {
+        throw new Error('Trop de demandes de réinitialisation. Veuillez patienter avant de réessayer');
+      } else if (error.message.includes('Invalid email')) {
+        throw new Error('Format d\'email invalide');
+      }
+      
+      throw error;
+    }
+  },
+
+  // NOUVELLE MÉTHODE: Mise à jour du mot de passe
+  async updatePassword({ password, confirmPassword }) {
+    try {
+      // Validation des données
+      this._validateUpdatePasswordData({ password, confirmPassword });
+
+      const authService = diProvider.get('authService');
+      const result = await authService.updatePassword({ password });
+      
+      return result;
+    } catch (error) {
+      console.error('UpdatePassword error in facade:', error);
+      
+      // Formatage des erreurs pour l'utilisateur
+      if (error.message.includes('Auth session missing')) {
+        throw new Error('Session expirée. Veuillez vous reconnecter');
+      } else if (error.message.includes('Password should be at least 6 characters')) {
+        throw new Error('Le mot de passe doit contenir au moins 6 caractères');
+      } else if (error.message.includes('New password should be different')) {
+        throw new Error('Le nouveau mot de passe doit être différent de l\'ancien');
       }
       
       throw error;
@@ -220,6 +311,9 @@ export const authFacade = {
                 this._cachedUser = user;
               }
               break;
+            case 'PASSWORD_RECOVERY':
+              // Pas de changement de cache pour la récupération de mot de passe
+              break;
           }
           
           // Appeler le callback original
@@ -255,6 +349,19 @@ export const authFacade = {
 
   getUserEmail() {
     return this._cachedUser?.email || null;
+  },
+
+  // NOUVELLE MÉTHODE: Vérifier si les fonctionnalités de reset sont disponibles
+  isResetPasswordAvailable() {
+    try {
+      const authService = diProvider.get('authService');
+      return typeof authService.resetPassword === 'function' && 
+             typeof authService.updatePassword === 'function' &&
+             typeof authService.authRepository?.resetPassword === 'function' &&
+             typeof authService.authRepository?.updatePassword === 'function';
+    } catch (error) {
+      return false;
+    }
   },
 
   // Méthode pour vider le cache (utile pour les tests ou le debug)
@@ -296,7 +403,9 @@ export const authFacade = {
         
         // Ne pas retry pour certains types d'erreurs
         if (error.message.includes('Invalid login credentials') || 
-            error.message.includes('User already registered')) {
+            error.message.includes('User already registered') ||
+            error.message.includes('User not found') ||
+            error.message.includes('n\'est pas encore implémentée')) {
           throw error;
         }
         

@@ -4,29 +4,77 @@ import { authFacade } from '../../../application/facades/authFacade';
 import './Auth.css';
 
 const Auth = ({ onClose, initialMode = 'login' }) => {
-  const [isLogin, setIsLogin] = useState(initialMode === 'login');
+  // Vérifier dynamiquement si les fonctionnalités de reset sont disponibles
+  const [isResetPasswordEnabled, setIsResetPasswordEnabled] = useState(false);
+
+  useEffect(() => {
+    // Vérifier si les méthodes de reset sont disponibles
+    const checkResetAvailability = () => {
+      try {
+        const available = authFacade.isResetPasswordAvailable();
+        setIsResetPasswordEnabled(available);
+      } catch (error) {
+        console.log('Reset password features not available:', error);
+        setIsResetPasswordEnabled(false);
+      }
+    };
+
+    checkResetAvailability();
+  }, []);
+
+  const [mode, setMode] = useState(() => {
+    // Vérifier si on est dans un processus de récupération
+    const urlParams = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    
+    if (urlParams.get('type') === 'recovery' || hash.includes('type=recovery')) {
+      return 'updatePassword';
+    }
+    
+    return initialMode === 'login' ? 'login' : 'signup';
+  });
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     username: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    newPassword: '',
+    confirmNewPassword: ''
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   
   const formRef = useRef(null);
   const emailInputRef = useRef(null);
+  const newPasswordInputRef = useRef(null);
 
   // Focus automatique sur le premier champ
   useEffect(() => {
-    if (emailInputRef.current) {
-      setTimeout(() => emailInputRef.current.focus(), 100);
-    }
-  }, []);
+    const focusTimer = setTimeout(() => {
+      if (mode === 'updatePassword' && newPasswordInputRef.current) {
+        try {
+          newPasswordInputRef.current.focus();
+        } catch (error) {
+          console.log('Focus error on new password field:', error);
+        }
+      } else if (emailInputRef.current) {
+        try {
+          emailInputRef.current.focus();
+        } catch (error) {
+          console.log('Focus error on email field:', error);
+        }
+      }
+    }, 200);
+
+    return () => clearTimeout(focusTimer);
+  }, [mode]);
 
   // Animation lors du changement de mode
   useEffect(() => {
@@ -62,9 +110,9 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
         break;
         
       case 'username':
-        if (!isLogin && !value) {
+        if (mode === 'signup' && !value) {
           newErrors.username = 'Nom d\'utilisateur requis';
-        } else if (!isLogin && value.length < 3) {
+        } else if (mode === 'signup' && value.length < 3) {
           newErrors.username = 'Au moins 3 caractères';
         } else {
           delete newErrors.username;
@@ -72,10 +120,28 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
         break;
         
       case 'confirmPassword':
-        if (!isLogin && value !== formData.password) {
+        if (mode === 'signup' && value !== formData.password) {
           newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
         } else {
           delete newErrors.confirmPassword;
+        }
+        break;
+
+      case 'newPassword':
+        if (!value) {
+          newErrors.newPassword = 'Nouveau mot de passe requis';
+        } else if (value.length < 6) {
+          newErrors.newPassword = 'Au moins 6 caractères';
+        } else {
+          delete newErrors.newPassword;
+        }
+        break;
+
+      case 'confirmNewPassword':
+        if (value !== formData.newPassword) {
+          newErrors.confirmNewPassword = 'Les mots de passe ne correspondent pas';
+        } else {
+          delete newErrors.confirmNewPassword;
         }
         break;
     }
@@ -94,15 +160,38 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
     setTimeout(() => validateField(name, value), 300);
   };
 
-  const toggleMode = () => {
+  const changeMode = (newMode) => {
     setIsAnimating(true);
-    setIsLogin(!isLogin);
+    setMode(newMode);
     setErrors({});
     setSuccessMessage('');
     
-    // Reset confirmPassword quand on passe en mode login
-    if (!isLogin) {
-      setFormData(prev => ({ ...prev, confirmPassword: '' }));
+    // Reset des champs selon le mode
+    if (newMode === 'login') {
+      setFormData(prev => ({ 
+        ...prev, 
+        confirmPassword: '', 
+        username: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      }));
+    } else if (newMode === 'reset') {
+      setFormData(prev => ({ 
+        ...prev, 
+        password: '', 
+        confirmPassword: '', 
+        username: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      }));
+    } else if (newMode === 'updatePassword') {
+      setFormData(prev => ({ 
+        ...prev, 
+        email: '',
+        password: '', 
+        confirmPassword: '', 
+        username: ''
+      }));
     }
   };
 
@@ -113,26 +202,34 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
     setLoading(true);
 
     try {
-      // Validation finale
-      validateField('email', formData.email);
-      validateField('password', formData.password);
-      if (!isLogin) {
-        validateField('username', formData.username);
-        validateField('confirmPassword', formData.confirmPassword);
-      }
+      if (mode === 'login') {
+        // Validation finale
+        validateField('email', formData.email);
+        validateField('password', formData.password);
 
-      if (Object.keys(errors).length > 0) {
-        setLoading(false);
-        return;
-      }
+        if (Object.keys(errors).length > 0) {
+          setLoading(false);
+          return;
+        }
 
-      if (isLogin) {
         await authFacade.signIn({ 
           email: formData.email.trim().toLowerCase(), 
           password: formData.password 
         });
         setSuccessMessage('Connexion réussie ! Bienvenue !');
-      } else {
+        
+      } else if (mode === 'signup') {
+        // Validation finale
+        validateField('email', formData.email);
+        validateField('password', formData.password);
+        validateField('username', formData.username);
+        validateField('confirmPassword', formData.confirmPassword);
+
+        if (Object.keys(errors).length > 0) {
+          setLoading(false);
+          return;
+        }
+
         const result = await authFacade.signUp({ 
           email: formData.email.trim().toLowerCase(),
           password: formData.password,
@@ -144,12 +241,63 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
         } else {
           setSuccessMessage('Compte créé et connecté avec succès !');
         }
+        
+      } else if (mode === 'reset') {
+        if (!isResetPasswordEnabled) {
+          setErrors({ submit: 'Fonctionnalité temporairement désactivée. Utilisez la connexion normale.' });
+          setLoading(false);
+          return;
+        }
+
+        // Validation finale
+        validateField('email', formData.email);
+
+        if (Object.keys(errors).length > 0) {
+          setLoading(false);
+          return;
+        }
+
+        await authFacade.resetPassword({ 
+          email: formData.email.trim().toLowerCase()
+        });
+        
+        setSuccessMessage('Email de réinitialisation envoyé ! Vérifiez votre boîte mail.');
+        
+        // Retourner au mode login après un délai
+        setTimeout(() => {
+          changeMode('login');
+        }, 3000);
+        
+      } else if (mode === 'updatePassword') {
+        if (!isResetPasswordEnabled) {
+          setErrors({ submit: 'Fonctionnalité temporairement désactivée. Veuillez vous connecter normalement.' });
+          setLoading(false);
+          return;
+        }
+
+        // Validation finale
+        validateField('newPassword', formData.newPassword);
+        validateField('confirmNewPassword', formData.confirmNewPassword);
+
+        if (Object.keys(errors).length > 0) {
+          setLoading(false);
+          return;
+        }
+
+        await authFacade.updatePassword({ 
+          password: formData.newPassword,
+          confirmPassword: formData.confirmNewPassword
+        });
+        
+        setSuccessMessage('Mot de passe mis à jour avec succès !');
       }
       
       // Fermer le modal après un délai pour montrer le message de succès
-      setTimeout(() => {
-        onClose();
-      }, 1500);
+      if (mode !== 'reset') {
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      }
       
     } catch (err) {
       console.error('Auth error:', err);
@@ -166,13 +314,59 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
   };
 
   const isFormValid = () => {
-    const { email, password, username, confirmPassword } = formData;
-    const baseValid = email && password && Object.keys(errors).length === 0;
+    const { email, password, username, confirmPassword, newPassword, confirmNewPassword } = formData;
+    const hasErrors = Object.keys(errors).length > 0;
     
-    if (isLogin) {
-      return baseValid;
+    if (mode === 'login') {
+      return email && password && !hasErrors;
+    } else if (mode === 'signup') {
+      return email && password && username && password === confirmPassword && !hasErrors;
+    } else if (mode === 'reset') {
+      return email && !hasErrors;
+    } else if (mode === 'updatePassword') {
+      return newPassword && newPassword === confirmNewPassword && !hasErrors;
+    }
+    
+    return false;
+  };
+
+  const getTitle = () => {
+    switch (mode) {
+      case 'login': return '👋 Bon retour !';
+      case 'signup': return '🎉 Rejoignez-nous !';
+      case 'reset': return '🔐 Mot de passe oublié ?';
+      case 'updatePassword': return '🔄 Nouveau mot de passe';
+      default: return '';
+    }
+  };
+
+  const getSubtitle = () => {
+    switch (mode) {
+      case 'login': return 'Connectez-vous pour accéder à vos recettes';
+      case 'signup': return 'Créez votre compte en quelques secondes';
+      case 'reset': return 'Entrez votre email pour recevoir un lien de réinitialisation';
+      case 'updatePassword': return 'Choisissez votre nouveau mot de passe';
+      default: return '';
+    }
+  };
+
+  const getSubmitText = () => {
+    if (loading) {
+      switch (mode) {
+        case 'login': return 'Connexion...';
+        case 'signup': return 'Création...';
+        case 'reset': return 'Envoi...';
+        case 'updatePassword': return 'Mise à jour...';
+        default: return 'Chargement...';
+      }
     } else {
-      return baseValid && username && password === confirmPassword;
+      switch (mode) {
+        case 'login': return 'Se connecter';
+        case 'signup': return 'Créer mon compte';
+        case 'reset': return 'Envoyer le lien';
+        case 'updatePassword': return 'Mettre à jour';
+        default: return 'Valider';
+      }
     }
   };
 
@@ -182,15 +376,8 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
         {/* Header avec animation */}
         <div className="auth-header">
           <div className="auth-header-content">
-            <h2 className="auth-title">
-              {isLogin ? '👋 Bon retour !' : '🎉 Rejoignez-nous !'}
-            </h2>
-            <p className="auth-subtitle">
-              {isLogin 
-                ? 'Connectez-vous pour accéder à vos recettes' 
-                : 'Créez votre compte en quelques secondes'
-              }
-            </p>
+            <h2 className="auth-title">{getTitle()}</h2>
+            <p className="auth-subtitle">{getSubtitle()}</p>
           </div>
           <button className="auth-close" onClick={onClose} aria-label="Fermer">
             ✕
@@ -213,7 +400,7 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
 
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
           {/* Champ nom d'utilisateur (inscription seulement) */}
-          {!isLogin && (
+          {mode === 'signup' && (
             <div className="form-group">
               <div className="input-container">
                 <span className="input-icon">👤</span>
@@ -234,57 +421,61 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
             </div>
           )}
 
-          {/* Champ email */}
-          <div className="form-group">
-            <div className="input-container">
-              <span className="input-icon">📧</span>
-              <input
-                ref={emailInputRef}
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
-                className={errors.email ? 'error' : ''}
-                autoComplete="email"
-              />
+          {/* Champ email (sauf pour updatePassword) */}
+          {mode !== 'updatePassword' && (
+            <div className="form-group">
+              <div className="input-container">
+                <span className="input-icon">📧</span>
+                <input
+                  ref={emailInputRef}
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
+                  className={errors.email ? 'error' : ''}
+                  autoComplete="email"
+                />
+              </div>
+              {errors.email && (
+                <span className="error-text">{errors.email}</span>
+              )}
             </div>
-            {errors.email && (
-              <span className="error-text">{errors.email}</span>
-            )}
-          </div>
+          )}
 
-          {/* Champ mot de passe */}
-          <div className="form-group">
-            <div className="input-container">
-              <span className="input-icon">🔒</span>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                placeholder="Mot de passe"
-                value={formData.password}
-                onChange={handleInputChange}
-                onKeyPress={handleKeyPress}
-                className={errors.password ? 'error' : ''}
-                autoComplete={isLogin ? 'current-password' : 'new-password'}
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
-              >
-                {showPassword ? '🙈' : '👁️'}
-              </button>
+          {/* Champ mot de passe (login et signup seulement) */}
+          {(mode === 'login' || mode === 'signup') && (
+            <div className="form-group">
+              <div className="input-container">
+                <span className="input-icon">🔒</span>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Mot de passe"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
+                  className={errors.password ? 'error' : ''}
+                  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
+              {errors.password && (
+                <span className="error-text">{errors.password}</span>
+              )}
             </div>
-            {errors.password && (
-              <span className="error-text">{errors.password}</span>
-            )}
-          </div>
+          )}
 
           {/* Confirmation mot de passe (inscription seulement) */}
-          {!isLogin && (
+          {mode === 'signup' && (
             <div className="form-group">
               <div className="input-container">
                 <span className="input-icon">🔒</span>
@@ -313,6 +504,67 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
             </div>
           )}
 
+          {/* Champs pour la mise à jour du mot de passe */}
+          {mode === 'updatePassword' && (
+            <>
+              <div className="form-group">
+                <div className="input-container">
+                  <span className="input-icon">🔒</span>
+                  <input
+                    ref={newPasswordInputRef}
+                    type={showNewPassword ? 'text' : 'password'}
+                    name="newPassword"
+                    placeholder="Nouveau mot de passe"
+                    value={formData.newPassword}
+                    onChange={handleInputChange}
+                    onKeyPress={handleKeyPress}
+                    className={errors.newPassword ? 'error' : ''}
+                    autoComplete="new-password"
+                    autoFocus={mode === 'updatePassword'}
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    aria-label={showNewPassword ? 'Masquer' : 'Afficher'}
+                  >
+                    {showNewPassword ? '🙈' : '👁️'}
+                  </button>
+                </div>
+                {errors.newPassword && (
+                  <span className="error-text">{errors.newPassword}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <div className="input-container">
+                  <span className="input-icon">🔒</span>
+                  <input
+                    type={showConfirmNewPassword ? 'text' : 'password'}
+                    name="confirmNewPassword"
+                    placeholder="Confirmer le nouveau mot de passe"
+                    value={formData.confirmNewPassword}
+                    onChange={handleInputChange}
+                    onKeyPress={handleKeyPress}
+                    className={errors.confirmNewPassword ? 'error' : ''}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                    aria-label={showConfirmNewPassword ? 'Masquer' : 'Afficher'}
+                  >
+                    {showConfirmNewPassword ? '🙈' : '👁️'}
+                  </button>
+                </div>
+                {errors.confirmNewPassword && (
+                  <span className="error-text">{errors.confirmNewPassword}</span>
+                )}
+              </div>
+            </>
+          )}
+
           {/* Bouton de soumission */}
           <button 
             type="submit" 
@@ -322,40 +574,86 @@ const Auth = ({ onClose, initialMode = 'login' }) => {
             {loading ? (
               <>
                 <span className="spinner"></span>
-                {isLogin ? 'Connexion...' : 'Création...'}
+                {getSubmitText()}
               </>
             ) : (
               <>
                 <span className="submit-icon">
-                  {isLogin ? '🚀' : '✨'}
+                  {mode === 'updatePassword' ? '🔄' : mode === 'reset' ? '📧' : mode === 'login' ? '🚀' : '✨'}
                 </span>
-                {isLogin ? 'Se connecter' : 'Créer mon compte'}
+                {getSubmitText()}
               </>
             )}
           </button>
         </form>
 
-        {/* Bouton de changement de mode */}
-        <div className="auth-switch">
-          <p>
-            {isLogin ? 'Pas encore de compte ?' : 'Déjà inscrit ?'}
-          </p>
-          <button 
-            type="button" 
-            className="switch-button"
-            onClick={toggleMode}
-            disabled={loading}
-          >
-            {isLogin ? '✨ Créer un compte' : '🚀 Se connecter'}
-          </button>
-        </div>
+        {/* Navigation entre les modes (sauf pour updatePassword) */}
+        {mode !== 'updatePassword' && (
+          <div className="auth-switch">
+            {mode === 'login' && (
+              <>
+                <p>Pas encore de compte ?</p>
+                <button 
+                  type="button" 
+                  className="switch-button"
+                  onClick={() => changeMode('signup')}
+                  disabled={loading}
+                >
+                  ✨ Créer un compte
+                </button>
+                {isResetPasswordEnabled && (
+                  <>
+                    <p>Mot de passe oublié ?</p>
+                    <button 
+                      type="button" 
+                      className="switch-button"
+                      onClick={() => changeMode('reset')}
+                      disabled={loading}
+                    >
+                      🔐 Réinitialiser
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+            
+            {mode === 'signup' && (
+              <>
+                <p>Déjà inscrit ?</p>
+                <button 
+                  type="button" 
+                  className="switch-button"
+                  onClick={() => changeMode('login')}
+                  disabled={loading}
+                >
+                  🚀 Se connecter
+                </button>
+              </>
+            )}
+            
+            {mode === 'reset' && (
+              <>
+                <p>Retour à la connexion</p>
+                <button 
+                  type="button" 
+                  className="switch-button"
+                  onClick={() => changeMode('login')}
+                  disabled={loading}
+                >
+                  🚀 Se connecter
+                </button>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Footer avec informations */}
         <div className="auth-footer">
           <p>
-            {isLogin 
-              ? '🔐 Connexion sécurisée' 
-              : '🛡️ Vos données sont protégées'
+            {mode === 'login' ? '🔐 Connexion sécurisée' : 
+             mode === 'signup' ? '🛡️ Vos données sont protégées' :
+             mode === 'reset' ? '📧 Vérifiez votre boîte mail' :
+             '🔒 Sécurisé et confidentiel'
             }
           </p>
         </div>
